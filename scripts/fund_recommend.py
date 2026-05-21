@@ -30,6 +30,13 @@ from src.advisor.recommend_rules import enrich_candidate_pool
 from src.analytics.screener import screen_funds
 from src.collectors.fund_rank import fetch_all_ranks
 from src.config_loader import CONFIG_DIR, load_fund_universe, load_strategy
+from src.notify.email import send_email
+from src.notify.settings import load_email_settings
+from src.notify.email_templates import (
+    build_weekly_recommend_email,
+    get_next_batch_from_schedule,
+)
+from src.reports.publish import footer_report_lines, publish_markdown_report
 
 
 def sync_to_fund_universe(recommendations: list[dict]) -> int:
@@ -67,6 +74,16 @@ def main() -> int:
         "--sync-universe",
         action="store_true",
         help="将新推荐的基金写入 fund_universe.csv",
+    )
+    parser.add_argument(
+        "--email",
+        action="store_true",
+        help="发送每周选基邮件",
+    )
+    parser.add_argument(
+        "--no-email",
+        action="store_true",
+        help="不发送邮件（默认与 --email 互斥）",
     )
     args = parser.parse_args()
 
@@ -113,6 +130,17 @@ def main() -> int:
     print(f"\nJSON: {json_path}")
     print(f"报告: {md_path}")
 
+    report_date = date.today().isoformat()
+    html_path, _, public_url = publish_markdown_report(
+        md,
+        report_date,
+        kind="fund-recommend",
+        title=f"全市场选基 {report_date}",
+    )
+    footer_plain, footer_html = footer_report_lines(public_url)
+    if public_url:
+        print(f"在线报告: {public_url}")
+
     if args.sync_universe and result.recommendations:
         n = sync_to_fund_universe(result.recommendations)
         print(f"fund_universe.csv：新增 {n} 只基金")
@@ -121,6 +149,44 @@ def main() -> int:
         print("\n规则校验:")
         for w in result.rule_warnings:
             print(f"  - {w}")
+
+    send_mail = args.email and not args.no_email
+    if send_mail:
+        email_cfg = load_email_settings()
+        if not email_cfg.is_ready:
+            print("邮件：未发送 — SMTP 未配置")
+        elif result.skipped:
+            print("邮件：未发送 — 无推荐结果")
+        else:
+            batch_plan = strategy.get("recommendation", {}).get("batch_plan") or {}
+            dca = batch_plan.get("note") or (
+                f"{batch_plan.get('dca_fund','270042')} 继续日定投 "
+                f"{batch_plan.get('dca_daily_cny', 10)} 元/天"
+            )
+            next_b = get_next_batch_from_schedule(result.batch_schedule)
+            subj, plain, html = build_weekly_recommend_email(
+                report_date,
+                result.to_dict(),
+                next_b,
+                dca,
+                report_public_url=public_url,
+                report_footer_plain=footer_plain,
+                report_footer_html=footer_html,
+            )
+            try:
+                send_email(
+                    email_cfg,
+                    subj,
+                    plain,
+                    html,
+                    attachments=[
+                        (f"选基报告-{report_date}.html", html_path.read_text(encoding="utf-8"), "html")
+                    ],
+                )
+                print(f"邮件：每周选基已发送至 {email_cfg.notify_to}")
+            except Exception as e:
+                print(f"邮件：发送失败 — {e}")
+                return 1
 
     return 0
 

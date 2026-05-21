@@ -16,6 +16,7 @@ from src.advisor.recommend_rules import (
 )
 from src.analytics.screener import ScreenedFund
 from src.config_loader import ROOT, load_fund_universe, load_positions, load_strategy
+from src.notify.batch_state import save_batch_state
 
 PROMPT_PATH = ROOT / "prompts" / "fund_recommend_v1.txt"
 OUT_DIR = ROOT / "data" / "recommendations"
@@ -306,4 +307,6 @@ def save_recommendation(
         encoding="utf-8",
     )
     md_path.write_text(markdown, encoding="utf-8")
+    if result.batch_schedule:
+        save_batch_state(d, result.budget_cny, result.batch_schedule)
     return json_path, md_path

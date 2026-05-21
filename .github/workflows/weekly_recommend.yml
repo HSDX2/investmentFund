@@ -1,19 +1,18 @@
-name: 基金日报定时推送
+name: 每周选基邮件
 
 on:
   schedule:
-    # 每天 UTC 12:35 = 北京时间 20:35
-    - cron: '35 12 * * *'
+    # 每周日 UTC 02:00 = 北京时间周日 10:00
+    - cron: '0 2 * * 0'
   workflow_dispatch:
-    # 支持手动触发
 
 permissions:
   contents: write
 
 jobs:
-  daily-report:
+  weekly-recommend:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -28,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run daily report
+      - name: Run weekly fund recommend + email
         env:
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.deepseek.com' }}
@@ -41,15 +40,15 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
           REPORT_PUBLIC_BASE_URL: https://stj8888.github.io/investmentFund
-        run: python scripts/daily_report.py
+        run: python scripts/fund_recommend.py --email --sync-universe
 
-      - name: Commit published report
+      - name: Commit batch state for daily reminders
         if: success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/reports/
-          git diff --staged --quiet || git commit -m "chore: publish daily report"
+          git add config/batch_state.json fund_universe.csv docs/reports/ 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "chore: weekly fund recommend batch state"
           git push
 
       - name: Send failure alert
@@ -66,10 +65,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: daily-report-${{ github.run_id }}
+          name: weekly-recommend-${{ github.run_id }}
           path: |
-            reports/
-            data/advice/
-            data/checklist/
+            reports/fund-recommend-*.md
+            data/recommendations/
             config/batch_state.json
           retention-days: 30

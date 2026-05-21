@@ -29,9 +29,13 @@ from src.executor.checklist import (
     render_checklist_markdown,
     save_checklist,
 )
-from src.notify.email import build_email_bodies, send_email
+from src.notify.email import send_email
 from src.notify.settings import load_email_settings
+from src.notify.email_templates import build_slim_daily_email
+from src.notify.batch_state import get_due_batch_today, mark_batch_sent
+from src.notify.email_templates import build_batch_reminder_email
 from src.reports.daily import render_daily_report, save_daily_report
+from src.reports.publish import footer_report_lines, publish_markdown_report
 
 
 def main() -> int:
@@ -130,6 +134,20 @@ def main() -> int:
     checklist_path = save_checklist(checklist_md)
     print(f"操作清单已生成: {checklist_path}")
 
+    report_date = date.today().isoformat()
+    full_md = f"{content.rstrip()}\n\n{checklist_md.lstrip()}"
+    html_path, _, public_url = publish_markdown_report(
+        full_md,
+        report_date,
+        kind="daily",
+        title=f"基金日报 {report_date}",
+    )
+    footer_plain, footer_html = footer_report_lines(public_url)
+    if public_url:
+        print(f"在线报告: {public_url}")
+    else:
+        print(f"HTML 报告: {html_path}（未配置 REPORT_PUBLIC_BASE_URL，邮件将附 HTML 附件）")
+
     if args.no_email:
         print("邮件：已跳过（--no-email）")
     else:
@@ -142,22 +160,38 @@ def main() -> int:
                 f"，收件人默认 {email_cfg.notify_to}"
             )
         else:
-            plain, html_body = build_email_bodies(
-                date.today().isoformat(),
-                content,
+            subject, plain, html_body = build_slim_daily_email(
+                report_date,
+                portfolio,
                 checklist_items,
-                advice.market_summary,
-                portfolio.total_market_value,
-                portfolio.total_unrealized_pnl,
-                portfolio.total_unrealized_pnl_pct,
+                advice,
+                report_public_url=public_url,
+                report_footer_plain=footer_plain,
+                report_footer_html=footer_html,
             )
-            subject = f"【基金日报】{date.today().isoformat()} 操作建议"
+            html_attachment = html_path.read_text(encoding="utf-8")
             try:
-                send_email(email_cfg, subject, plain, html_body)
-                print(f"邮件：已发送至 {email_cfg.notify_to}")
+                send_email(
+                    email_cfg,
+                    subject,
+                    plain,
+                    html_body,
+                    attachments=[(f"基金日报-{report_date}.html", html_attachment, "html")],
+                )
+                print(f"邮件：已发送至 {email_cfg.notify_to}（精简日报）")
             except Exception as e:
                 print(f"邮件：发送失败 — {e}")
                 return 1
+
+            due_batch = get_due_batch_today()
+            if due_batch:
+                b_subj, b_plain, b_html = build_batch_reminder_email(due_batch)
+                try:
+                    send_email(email_cfg, b_subj, b_plain, b_html)
+                    mark_batch_sent(int(due_batch["day_offset"]))
+                    print(f"邮件：分批提醒已发送（{due_batch.get('label')}）")
+                except Exception as e:
+                    print(f"邮件：分批提醒发送失败 — {e}")
 
     return 0
 

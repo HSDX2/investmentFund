@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import html
 import smtplib
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Iterable
 
 from src.executor.checklist import OperationItem
 from src.notify.settings import EmailSettings
+
+EmailAttachment = tuple[str, str, str]  # filename, content, mime_subtype e.g. html
 
 ACTION_LABELS = {
     "hold": "持有",
@@ -124,6 +128,7 @@ def send_email(
     html_body: str,
     *,
     to_addrs: Iterable[str] | None = None,
+    attachments: list[EmailAttachment] | None = None,
 ) -> None:
     if not settings.is_ready:
         raise RuntimeError(
@@ -131,12 +136,26 @@ def send_email(
         )
 
     recipients = list(to_addrs) if to_addrs else [settings.notify_to]
-    msg = MIMEMultipart("alternative")
+    msg = MIMEMultipart("mixed")
+    alt = MIMEMultipart("alternative")
+    alt.attach(MIMEText(plain_body, "plain", "utf-8"))
+    alt.attach(MIMEText(html_body, "html", "utf-8"))
+    msg.attach(alt)
+
+    for filename, content, subtype in attachments or []:
+        part = MIMEBase("text", subtype, charset="utf-8")
+        part.set_payload(content.encode("utf-8"))
+        encoders.encode_base64(part)
+        part.add_header(
+            "Content-Disposition",
+            "attachment",
+            filename=("utf-8", "", filename),
+        )
+        msg.attach(part)
+
     msg["Subject"] = subject
     msg["From"] = settings.smtp_user
     msg["To"] = ", ".join(recipients)
-    msg.attach(MIMEText(plain_body, "plain", "utf-8"))
-    msg.attach(MIMEText(html_body, "html", "utf-8"))
 
     with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port) as server:
         server.login(settings.smtp_user, settings.smtp_password)
