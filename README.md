@@ -60,7 +60,39 @@ AI 建议审计 JSON：`data/advice/YYYY-MM-DD.json`
 
 收件人可在 `config/notify.yaml` 的 `email.to` 修改。
 
-## 定时任务（Windows）
+## 定时任务
+
+### GitHub Actions（推荐）
+
+项目已配置 GitHub Actions 工作流，每天北京时间 **20:35** 自动运行日报并推送邮件。
+
+**配置步骤**：在 GitHub 仓库 → Settings → Secrets and variables → Actions 中添加以下 Secrets：
+
+| Secret | 必填 | 说明 |
+|--------|------|------|
+| `LLM_API_KEY` | 是 | DeepSeek / OpenAI 兼容 API Key |
+| `LLM_BASE_URL` | 否 | 默认 `https://api.deepseek.com` |
+| `LLM_MODEL` | 否 | 默认 `deepseek-chat` |
+| `SMTP_USER` | 是 | QQ 邮箱地址（如 `346157791@qq.com`） |
+| `SMTP_PASSWORD` | 是 | QQ 邮箱 SMTP 授权码 |
+| `NOTIFY_TO` | 是 | 收件人邮箱 |
+
+配置完成后，工作流将每天自动执行。也可在 Actions 页面手动触发（`workflow_dispatch`）。
+
+任务失败时自动发送告警邮件；报告和建议 JSON 保存为 GitHub Artifacts（保留 30 天）。
+
+### Linux（cron）
+
+```bash
+# 手动运行（写日志到 logs/）
+bash scripts/run_daily.sh
+
+# 注册 cron：每天 UTC 12:35（北京时间 20:35）
+crontab -e
+35 12 * * * /path/to/scripts/run_daily.sh
+```
+
+### Windows（任务计划程序）
 
 ```powershell
 # 注册：每天 20:35 自动跑日报+发邮件

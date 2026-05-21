@@ -1,0 +1,64 @@
+name: 基金日报定时推送
+
+on:
+  schedule:
+    # 每天 UTC 12:35 = 北京时间 20:35
+    - cron: '35 12 * * *'
+  workflow_dispatch:
+    # 支持手动触发
+
+permissions:
+  contents: read
+
+jobs:
+  daily-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run daily report
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL || 'https://api.deepseek.com' }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL || 'deepseek-chat' }}
+          LLM_TEMPERATURE: '0.3'
+          EMAIL_ENABLED: 'true'
+          SMTP_HOST: smtp.qq.com
+          SMTP_PORT: '465'
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
+        run: python scripts/daily_report.py
+
+      - name: Send failure alert
+        if: failure()
+        env:
+          SMTP_HOST: smtp.qq.com
+          SMTP_PORT: '465'
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
+        run: python scripts/notify_failure.py || true
+
+      - name: Upload report artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-report-${{ github.run_id }}
+          path: |
+            reports/
+            data/advice/
+            data/checklist/
+          retention-days: 30
