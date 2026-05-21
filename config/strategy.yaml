@@ -1,15 +1,14 @@
 # 投资策略配置（已按当前持仓校准，2026-05）
 # 主仓：012734 人工智能主题（支付宝）
-# 关注：270042 纳斯达克100 QDII，仅定投、不主动换基
+# 关注：270042 纳斯达克100 QDII，仅定投 10 元/日
 
 investor:
   risk_level: moderate
-  horizon_years: 5
+  horizon_years: 3
   max_drawdown_tolerance: 0.15
-  notes: "小资金积累阶段，允许单基集中；市值上万后再按上限逐步分散"
+  notes: "已有500人工智能+纳斯达克日定投10元；计划新增约5000元需全市场筛选推荐"
 
 allocation:
-  # 账户市值 ≥ relax_caps_when_value_below 时，才检查下列上限
   max_single_fund_ratio: 0.80
   max_theme_ratio: 0.80
   cash_buffer_ratio: 0.10
@@ -34,3 +33,50 @@ portfolio_plan:
 
 benchmark:
   index_code: "000300.SH"
+
+# 全市场基金推荐（运行 scripts/fund_recommend.py）
+recommendation:
+  enabled: true
+  budget_cny: 5000
+  fund_types:
+    - 混合型
+    - 指数型
+    - 股票型
+    - QDII
+  max_candidates: 60
+  min_return_1y: null
+  exclude_name_keywords:
+    - 债券
+    - 货币
+    - 理财
+  prefer_themes:
+    - 人工智能
+    - 科技
+    - 纳斯达克
+    - 沪深300
+    - 中证500
+    - 红利
+  max_recommendations: 5
+
+  # 5000 入局规则（程序校验 + AI 约束）
+  allocation_plan:
+    require_core_add: true
+    core_fund: "012734"
+    min_core_add_cny: 1000
+    broad_index_min_ratio: 0.50
+    broad_index_keywords:
+      - 沪深300
+      - 中证500
+      - A500
+      - 上证50
+      - 红利
+    reserve_cash_ratio: 0.05
+
+  # 分批买入：5000 不要一天打满
+  batch_plan:
+    enabled: true
+    tranches: 3
+    days_between: 7
+    dca_daily_cny: 10
+    dca_fund: "270042"
+    note: "270042 继续日定投10元，不计入本次5000"

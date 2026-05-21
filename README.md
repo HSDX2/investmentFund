@@ -53,9 +53,9 @@ AI 建议审计 JSON：`data/advice/YYYY-MM-DD.json`
 
 1. 在 [QQ 邮箱](https://mail.qq.com) → 设置 → 账户 → 开启 SMTP，生成**授权码**
 2. 在 `.env` 中配置（见 `.env.example`）：
-   - `SMTP_USER=346157791@qq.com`
-   - `SMTP_PASSWORD=授权码`
-   - `NOTIFY_TO=346157791@qq.com`
+  - `SMTP_USER=346157791@qq.com`
+  - `SMTP_PASSWORD=授权码`
+  - `NOTIFY_TO=346157791@qq.com`
 3. 运行 `python scripts/daily_report.py`，将发送 HTML 邮件并生成本地操作清单 `data/checklist/YYYY-MM-DD.md`
 4. 不发电邮：`python scripts/daily_report.py --no-email`
 
@@ -69,14 +69,16 @@ AI 建议审计 JSON：`data/advice/YYYY-MM-DD.json`
 
 **配置步骤**：在 GitHub 仓库 → Settings → Secrets and variables → Actions 中添加以下 Secrets：
 
-| Secret | 必填 | 说明 |
-|--------|------|------|
-| `LLM_API_KEY` | 是 | DeepSeek / OpenAI 兼容 API Key |
-| `LLM_BASE_URL` | 否 | 默认 `https://api.deepseek.com` |
-| `LLM_MODEL` | 否 | 默认 `deepseek-chat` |
-| `SMTP_USER` | 是 | QQ 邮箱地址（如 `346157791@qq.com`） |
-| `SMTP_PASSWORD` | 是 | QQ 邮箱 SMTP 授权码 |
-| `NOTIFY_TO` | 是 | 收件人邮箱 |
+
+| Secret          | 必填  | 说明                            |
+| --------------- | --- | ----------------------------- |
+| `LLM_API_KEY`   | 是   | DeepSeek / OpenAI 兼容 API Key  |
+| `LLM_BASE_URL`  | 否   | 默认 `https://api.deepseek.com` |
+| `LLM_MODEL`     | 否   | 默认 `deepseek-chat`            |
+| `SMTP_USER`     | 是   | QQ 邮箱地址（如 `346157791@qq.com`） |
+| `SMTP_PASSWORD` | 是   | QQ 邮箱 SMTP 授权码                |
+| `NOTIFY_TO`     | 是   | 收件人邮箱                         |
+
 
 配置完成后，工作流将每天自动执行。也可在 Actions 页面手动触发（`workflow_dispatch`）。
 
@@ -118,14 +120,33 @@ scripts\run_daily.bat                   # 写 logs/，仍不注册定时
 powershell -ExecutionPolicy Bypass -File scripts\register_scheduled_task.ps1
 ```
 
+## 全市场基金推荐（新）
+
+在持仓日报之外，可从东方财富 **1.5 万+** 开放式基金排行中筛选，再让 AI 按你的预算（如 5000 元）给出配置建议：
+
+```bash
+python scripts/fund_recommend.py
+python scripts/fund_recommend.py --budget 5000 --sync-universe
+```
+
+**5000 入局规则**（`strategy.yaml` → `recommendation.allocation_plan`）：
+- 必须包含主仓 **012734 加仓**（默认 ≥1000 元）
+- **宽基指数合计 ≥50%**（沪深300/中证500 等）
+- **270042 继续日定投 10 元**，不计入 5000
+- 报告含 **3 批买入计划**（每批间隔 7 天）
+- `--sync-universe` 将新推荐基金写入 `fund_universe.csv`
+
+配置见 `config/strategy.yaml` 的 `recommendation` 段。报告输出：`reports/fund-recommend-YYYY-MM-DD.md`
+
 ## 策略说明
 
-`config/strategy.yaml` 已按当前持仓校准：市值 &lt; 1 万元时不触发单基/主题仓位告警；`270042` 为仅定投。市值上万后自动启用 80% 上限检查。
+`config/strategy.yaml` 已按当前持仓校准：市值 < 1 万元时不触发单基/主题仓位告警；`270042` 为仅定投。市值上万后自动启用 80% 上限检查。
 
 ## 建议实施顺序
 
-1. 填写上述配置  
-2. **Phase 1**：净值同步 + 每日 Markdown 报告  
-3. **Phase 2**：规则扫描 + AI 总结与加减仓建议  
-4. **Phase 3**（当前）：操作清单 + QQ 邮件推送（`semi_auto`，需在 APP 手动下单）  
+1. 填写上述配置
+2. **Phase 1**：净值同步 + 每日 Markdown 报告
+3. **Phase 2**：规则扫描 + AI 总结与加减仓建议
+4. **Phase 3**（当前）：操作清单 + QQ 邮件推送（`semi_auto`，需在 APP 手动下单）
 5. Phase 4：全自动（视券商 API 而定）
+
