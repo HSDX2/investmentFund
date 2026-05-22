@@ -96,6 +96,17 @@ def _rule_lines(advice: AdviceResult | None) -> list[str]:
     ]
 
 
+def _news_lines(advice: AdviceResult | None, limit: int = 3) -> list[str]:
+    if not advice or not advice.news_digest:
+        return []
+    lines: list[str] = []
+    for item in advice.news_digest[:limit]:
+        kw = item.get("keyword", "")
+        text = item.get("summary") or item.get("title", "")
+        lines.append(f"· [{kw}] {text}")
+    return lines
+
+
 def build_slim_daily_email(
     report_date: str,
     portfolio: PortfolioSummary,
@@ -113,6 +124,7 @@ def build_slim_daily_email(
     summary = _truncate_summary(advice.market_summary if advice else "")
     bench = _benchmark_line(portfolio)
     rules = _rule_lines(advice)
+    news = _news_lines(advice)
 
     pnl_sign = "+" if portfolio.total_unrealized_pnl_pct >= 0 else ""
     subject = (
@@ -129,6 +141,10 @@ def build_slim_daily_email(
     if bench:
         plain_parts.append(bench)
     plain_parts.extend(["", f"【摘要】{summary}", ""])
+    if news:
+        plain_parts.append("【要闻】")
+        plain_parts.extend(f"  {line}" for line in news)
+        plain_parts.append("")
     plain_parts.append("【持仓】")
     for p in portfolio.positions:
         day = f"{p.daily_growth_pct:+.2f}%" if p.daily_growth_pct is not None else "—"
@@ -162,6 +178,12 @@ def build_slim_daily_email(
             f"<li>{html.escape(r)}</li>" for r in rules
         ) + "</ul>"
 
+    news_html = ""
+    if news:
+        news_html = "<h3>相关要闻</h3><ul>" + "".join(
+            f"<li>{html.escape(line)}</li>" for line in news
+        ) + "</ul>"
+
     html_body = f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"></head>
 <body style="font-family:Microsoft YaHei,sans-serif;line-height:1.6;color:#222;max-width:640px">
@@ -172,6 +194,7 @@ def build_slim_daily_email(
   </p>
   {f'<p style="color:#555">{html.escape(bench)}</p>' if bench else ''}
   <p style="background:#f8f8f8;padding:10px;border-radius:6px">{html.escape(summary)}</p>
+  {news_html}
   <h3>持仓</h3>
   {_positions_table_html(portfolio)}
   <h3>今日操作</h3>

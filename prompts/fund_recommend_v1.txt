@@ -10,6 +10,7 @@
 7. 同一行业主题（非宽基）不超过 2 只；人工智能主题已有持仓，新推荐宜搭配宽基分散。
 8. 每只推荐须给出 amount_cny、action（buy/add/dca）和 reason。
 9. notes 中须提醒：分批买入、270042 继续日定投、支付宝核实申购状态。
+10. 若 news_digest 非空，可在 summary 中简要提及与配置主题相关的要闻；只能引用 news_digest 已有内容，不得编造新闻。
 
 ## 输出
 只输出 JSON，不要 markdown：

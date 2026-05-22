@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from src.advisor.llm_client import chat_json, is_llm_configured
+from src.advisor.news_summarizer import build_news_digest
 from src.advisor.recommend_rules import (
     build_batch_schedule,
     enrich_candidate_pool,
@@ -126,6 +127,7 @@ def build_recommend_context(
     strategy: dict,
     positions: list[dict[str, str]],
     universe: list[dict[str, str]],
+    news_digest: list[dict] | None = None,
 ) -> dict[str, Any]:
     rec = strategy.get("recommendation", {})
     trading = strategy.get("trading", {})
@@ -141,6 +143,7 @@ def build_recommend_context(
         "watchlist": universe,
         "dca_only_funds": trading.get("dca_only_funds", []),
         "candidates": [c.to_dict() for c in screened],
+        "news_digest": news_digest or [],
     }
 
 
@@ -171,7 +174,12 @@ def generate_fund_recommendations(
             skip_reason="未配置 LLM_API_KEY",
         )
 
-    ctx = build_recommend_context(screened, strategy, positions, universe)
+    news_digest, _ = build_news_digest(
+        strategy, positions, universe, use_llm=use_llm
+    )
+    ctx = build_recommend_context(
+        screened, strategy, positions, universe, news_digest=news_digest
+    )
     system = _load_prompt()
     user = (
         "以下是用户策略、持仓与候选基金 JSON，请输出推荐配置 JSON：\n\n"

@@ -10,6 +10,7 @@ from typing import Any
 
 from src.advisor.context import build_advisor_context, theme_map
 from src.advisor.llm_client import chat_json, is_llm_configured
+from src.advisor.news_summarizer import build_news_digest
 from src.advisor.validator import validate_advice
 from src.analytics.portfolio import PortfolioSummary, WatchlistItem
 from src.config_loader import ROOT
@@ -26,6 +27,8 @@ class AdviceResult:
     actions: list[dict[str, Any]] = field(default_factory=list)
     switch_candidates: list[dict[str, Any]] = field(default_factory=list)
     rule_signals: list[RuleSignal] = field(default_factory=list)
+    news_digest: list[dict[str, Any]] = field(default_factory=list)
+    news_error: str | None = None
     skipped: bool = False
     skip_reason: str | None = None
     model: str | None = None
@@ -37,6 +40,8 @@ class AdviceResult:
             "actions": self.actions,
             "switch_candidates": self.switch_candidates,
             "rule_signals": [s.to_dict() for s in self.rule_signals],
+            "news_digest": self.news_digest,
+            "news_error": self.news_error,
             "skipped": self.skipped,
             "skip_reason": self.skip_reason,
             "model": self.model,
@@ -79,6 +84,13 @@ def generate_advice(
     )
     whitelist = _whitelist(fund_universe, positions_cfg)
 
+    news_digest, news_error = build_news_digest(
+        strategy,
+        positions_cfg,
+        fund_universe,
+        use_llm=use_llm,
+    )
+
     if not use_llm or not is_llm_configured():
         reason = (
             "未启用 AI（--no-ai）"
@@ -88,6 +100,8 @@ def generate_advice(
         return AdviceResult(
             market_summary="",
             rule_signals=rule_signals,
+            news_digest=news_digest,
+            news_error=news_error,
             skipped=True,
             skip_reason=reason,
         )
@@ -101,6 +115,7 @@ def generate_advice(
         rule_signals,
         fund_universe,
         positions_cfg,
+        news_digest=news_digest,
     )
     system = _load_system_prompt()
     user = (
@@ -125,6 +140,8 @@ def generate_advice(
         actions=validated["actions"],
         switch_candidates=validated["switch_candidates"],
         rule_signals=rule_signals,
+        news_digest=news_digest,
+        news_error=news_error,
         skipped=False,
         model=model,
     )

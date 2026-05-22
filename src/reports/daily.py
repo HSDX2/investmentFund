@@ -48,6 +48,32 @@ def _render_rule_signals(advice: AdviceResult | None) -> list[str]:
     return lines
 
 
+def _render_news_section(advice: AdviceResult | None) -> list[str]:
+    if not advice or not advice.news_digest:
+        return []
+    lines = [
+        "",
+        "## 相关要闻",
+        "",
+        "| 关键词 | 标题 | 摘要 | 时间 | 来源 |",
+        "|--------|------|------|------|------|",
+    ]
+    for item in advice.news_digest:
+        title = item.get("title", "")
+        url = item.get("url", "")
+        title_cell = f"[{title}]({url})" if url else title
+        lines.append(
+            f"| {item.get('keyword', '—')} | {title_cell} | "
+            f"{item.get('summary', '—')} | {item.get('published_at', '—')} | "
+            f"{item.get('source', '—')} |"
+        )
+    if advice.news_error:
+        lines.extend(["", f"> 部分关键词拉取异常：{advice.news_error}", ""])
+    else:
+        lines.append("")
+    return lines
+
+
 def _render_ai_section(advice: AdviceResult | None) -> list[str]:
     if not advice:
         return []
@@ -171,6 +197,7 @@ def render_daily_report(
         )
 
     lines.extend(_render_rule_signals(advice))
+    lines.extend(_render_news_section(advice))
     lines.extend(_render_ai_section(advice))
 
     if watchlist:

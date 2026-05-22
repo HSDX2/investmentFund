@@ -121,6 +121,13 @@ def main() -> int:
         print(f"AI：已跳过 — {advice.skip_reason}")
     else:
         print(f"AI：已生成（模型 {advice.model}），{len(advice.actions)} 条操作")
+    if advice.news_digest:
+        llm_note = "含 LLM 摘要" if any(
+            item.get("summary_source") == "llm" for item in advice.news_digest
+        ) else "预览摘要"
+        print(f"要闻：已采集 {len(advice.news_digest)} 条（{llm_note}）")
+    elif strategy.get("news", {}).get("enabled"):
+        print("要闻：未采集到相关新闻")
 
     content = render_daily_report(
         date.today(), portfolio, watchlist, data_as_of, advice=advice

@@ -21,6 +21,7 @@ def build_advisor_context(
     rule_signals: list[RuleSignal],
     fund_universe: list[dict[str, str]],
     positions_cfg: list[dict[str, str]],
+    news_digest: list[dict] | None = None,
 ) -> dict:
     benchmark = None
     if portfolio.benchmark:
@@ -52,4 +53,5 @@ def build_advisor_context(
         "positions_meta": positions_cfg,
         "rule_signals": [s.to_dict() for s in rule_signals],
         "benchmark": benchmark,
+        "news_digest": news_digest or [],
     }

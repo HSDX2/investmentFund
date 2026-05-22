@@ -34,6 +34,21 @@ portfolio_plan:
 benchmark:
   index_code: "000300.SH"
 
+# 相关新闻（日报/选基前拉取，标题 + LLM 一句话摘要写入 AI 上下文）
+news:
+  enabled: true
+  summarize: true
+  auto_keywords_from_holdings: true
+  keywords:
+    - 人工智能
+    - 创新药
+    - 纳斯达克
+    - 美联储
+  max_per_keyword: 3
+  max_total: 12
+  max_age_hours: 72
+  request_interval_sec: 1.0
+
 # 全市场基金推荐（运行 scripts/fund_recommend.py）
 recommendation:
   enabled: true

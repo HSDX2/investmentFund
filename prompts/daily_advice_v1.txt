@@ -11,6 +11,8 @@
 8. 关注池 notes 含「仅定投」的基金，以及 trading.dca_only_funds 列表中的代码，默认不建议 switch 换入，仅可建议小额定投加仓。
 9. 若 rule_signals 含 SMALL_ACCOUNT_MODE，不要因单基仓位100%而建议大幅减仓；优先 hold 或小幅定投分散。
 10. 账户市值低于 allocation.relax_caps_when_value_below 时，以积累为主，风控以止损线为优先。
+11. 若 news_digest 非空，可在 market_summary 中简要提及与持仓主题相关的要闻；只能引用 news_digest 中已有标题/摘要，不得编造未出现的新闻或政策。
+12. news_digest 为空时，不要假设当日有任何特定新闻，以规则信号与净值数据为主。
 
 ## 输出格式
 只输出一个 JSON 对象，不要 markdown 代码块，不要其他文字。结构如下：
