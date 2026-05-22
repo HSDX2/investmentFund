@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from datetime import date
 from pathlib import Path
 
@@ -69,7 +70,9 @@ def main() -> int:
     print(f"正在拉取 {len(codes)} 只基金净值: {', '.join(codes)}")
 
     nav_map = {}
-    for code in codes:
+    for i, code in enumerate(codes):
+        if i > 0:
+            time.sleep(1.5)
         try:
             if args.no_cache:
                 df = fetch_fund_nav_history(code)
@@ -78,7 +81,11 @@ def main() -> int:
                 df.to_csv(cache, index=False, encoding="utf-8-sig")
             nav_map[code] = get_fund_nav_snapshot(code, use_cache=not args.no_cache)
             snap = nav_map[code]
-            print(f"  {code} 净值 {snap.unit_nav} ({snap.nav_date}) 日涨跌 {snap.daily_growth_pct}%")
+            src = f" [{snap.data_source}]" if snap.data_source else ""
+            print(
+                f"  {code} 净值 {snap.unit_nav} ({snap.nav_date}) "
+                f"日涨跌 {snap.daily_growth_pct}%{src}"
+            )
         except Exception as e:
             print(f"  [失败] {code}: {e}")
             return 1

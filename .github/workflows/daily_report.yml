@@ -28,6 +28,16 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Restore market data cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/nav
+            data/index
+          key: market-data-v1-${{ github.run_id }}
+          restore-keys: |
+            market-data-v1-
+
       - name: Run daily report
         env:
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
