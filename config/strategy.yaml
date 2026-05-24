@@ -12,7 +12,7 @@ allocation:
   max_single_fund_ratio: 0.80
   max_theme_ratio: 0.80
   cash_buffer_ratio: 0.10
-  relax_caps_when_value_below: 700
+  relax_caps_when_value_below: 5000
 
 signals:
   rebalance_threshold: 0.05
