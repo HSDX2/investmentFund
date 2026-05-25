@@ -12,6 +12,7 @@ import pandas as pd
 from src.advisor.advisor import AdviceResult
 from src.advisor.market_outlook import MarketOutlook
 from src.analytics.portfolio import PortfolioSummary, WatchlistItem
+from src.analytics.recommendation_board import RecommendationBoard
 from src.collectors.capital_flow import CapitalFlowSnapshot
 from src.collectors.index_benchmark import _load_cache, _normalize_index_code
 from src.collectors.nav import CACHE_DIR as NAV_CACHE_DIR, _load_cache as _load_nav_cache
@@ -145,6 +146,8 @@ def build_dashboard_payload(
     *,
     capital_flow: CapitalFlowSnapshot | None = None,
     market_outlook=None,
+    flow_trends: dict | None = None,
+    recommendation_board: RecommendationBoard | None = None,
     lookback_days: int = LOOKBACK_DAYS,
 ) -> dict:
     index_code = strategy.get("benchmark", {}).get("index_code", "000300.SH")
@@ -206,6 +209,12 @@ def build_dashboard_payload(
             market_outlook.to_dict()
             if isinstance(market_outlook, MarketOutlook)
             else market_outlook
+        ),
+        "flow_trends": flow_trends,
+        "recommendation_board": (
+            recommendation_board.to_dict()
+            if isinstance(recommendation_board, RecommendationBoard)
+            else recommendation_board
         ),
         "charts": {
             "lookback_days": lookback_days,

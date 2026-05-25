@@ -23,7 +23,14 @@ if str(ROOT) not in sys.path:
 from src.advisor.advisor import generate_advice, save_advice_audit
 from src.advisor.market_outlook import generate_market_outlook
 from src.analytics.portfolio import build_portfolio_summary, build_watchlist
+from src.analytics.recommendation_board import build_recommendation_board
 from src.collectors.capital_flow import fetch_capital_flow_snapshot
+from src.collectors.capital_flow_history import (
+    build_flow_trends,
+    fetch_northbound_history,
+    load_flow_history,
+    save_flow_snapshot,
+)
 from src.collectors.index_benchmark import fetch_index_snapshot
 from src.collectors.data_quality import collect_stale_data_notes
 from src.collectors.nav import get_fund_nav_snapshot
@@ -121,6 +128,8 @@ def main() -> int:
     print(f"建议审计已保存: {audit_path}")
 
     capital_flow = None
+    flow_trends = None
+    recommendation_board = None
     if strategy.get("market_flow", {}).get("enabled", True):
         print("正在采集主力资金流向...")
         try:
@@ -128,6 +137,7 @@ def main() -> int:
             if capital_flow.error and not capital_flow.data_source:
                 print(f"  资金流：失败 — {capital_flow.error}")
             else:
+                save_flow_snapshot(capital_flow)
                 nb = capital_flow.northbound
                 nb_txt = (
                     f"北向 {nb.total_net_yi:+.2f} 亿"
@@ -142,6 +152,26 @@ def main() -> int:
                     print(f"  部分失败：{capital_flow.error}")
         except Exception as e:
             print(f"  资金流：异常 — {e}")
+
+        if strategy.get("recommendation_board", {}).get("enabled", True):
+            hist_days = int(strategy.get("recommendation_board", {}).get("history_days", 30))
+            history = load_flow_history(hist_days)
+            nb_hist = fetch_northbound_history(hist_days)
+            flow_trends = build_flow_trends(history, nb_hist, lookback_days=hist_days)
+            recommendation_board = build_recommendation_board(
+                strategy,
+                watchlist,
+                universe,
+                positions,
+                capital_flow,
+                flow_trends,
+                advice.news_digest,
+            )
+            print(
+                f"推荐看板：基金 {len(recommendation_board.fund_picks)} 只 · "
+                f"龙头 {len(recommendation_board.stock_picks)} 只 · "
+                f"情绪 {recommendation_board.sentiment_label}"
+            )
 
     market_outlook = generate_market_outlook(
         date.today().isoformat(),
@@ -208,6 +238,8 @@ def main() -> int:
         strategy,
         capital_flow=capital_flow,
         market_outlook=market_outlook,
+        flow_trends=flow_trends,
+        recommendation_board=recommendation_board,
     )
     dash_path, latest_path = export_dashboard_json(dash_payload, report_date)
     print(f"面板数据: {latest_path}")

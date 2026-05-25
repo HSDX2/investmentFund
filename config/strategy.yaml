@@ -82,6 +82,14 @@ market_flow:
 market_outlook:
   enabled: true                 # false = 不调用 LLM 方向分析（仍展示原始资金流）
 
+# --- 推荐看板（基金/板块龙头 + 结构化推荐理由 + 资金流历史）---
+recommendation_board:
+  enabled: true
+  max_fund_picks: 5             # 最多展示几只基金推荐
+  max_stock_picks: 8            # 最多展示几只板块龙头（来自真实领涨股数据）
+  use_weekly_recommend_days: 14 # 多少天内的 weekly 选基结果优先展示
+  history_days: 30              # 主力资金历史回看天数
+
 # --- 全市场选基（scripts/fund_recommend.py / 每周日 workflow）---
 recommendation:
   enabled: true                 # false = 选基脚本直接退出

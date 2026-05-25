@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>基金投资面板</title>
-  <link rel="stylesheet" href="styles.css?v=20260527">
+  <link rel="stylesheet" href="styles.css?v=20260528">
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 </head>
 <body>
@@ -21,6 +21,30 @@
 
   <main class="grid">
     <section class="cards" id="summaryCards"></section>
+
+    <section class="panel wide">
+      <h2>推荐看板</h2>
+      <p class="hint">基于真实资金流、市场情绪与要闻 · 基金关注 + 板块龙头 · 不构成投资建议</p>
+      <div id="recSentiment" class="rec-sentiment"></div>
+      <div class="rec-grid">
+        <div class="rec-col">
+          <h3>基金推荐</h3>
+          <div id="fundRecList" class="rec-list"></div>
+        </div>
+        <div class="rec-col">
+          <h3>板块龙头（A股）</h3>
+          <div id="stockRecList" class="rec-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel wide">
+      <h2>主力资金历史动向</h2>
+      <p class="hint">北向资金与本地快照累计 · 反映阶段市场情绪变化</p>
+      <div id="flowHistSummary" class="flow-summary"></div>
+      <div id="chartFlowHist" class="chart"></div>
+      <div id="chartHotSectors" class="chart chart-sm"></div>
+    </section>
 
     <section class="panel wide">
       <h2>主力资金流向</h2>
@@ -88,6 +112,6 @@
   <footer class="footer">
     <span>数据来自 GitHub Actions 日报快照 · 不构成投资建议</span>
   </footer>
-  <script src="app.js?v=20260527"></script>
+  <script src="app.js?v=20260528"></script>
 </body>
 </html>

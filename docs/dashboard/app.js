@@ -6,6 +6,8 @@ let chartMain = null;
 let chartPie = null;
 let chartFlowIn = null;
 let chartFlowOut = null;
+let chartFlowHist = null;
+let chartHotSectors = null;
 
 function fmtPct(v, signed = true) {
   if (v == null || Number.isNaN(v)) return "—";
@@ -228,6 +230,165 @@ function renderOutlook(data) {
     ${risks ? `<ul class="outlook-risks">${risks}</ul>` : ""}
     <p class="outlook-disclaimer">${escapeHtml(o.disclaimer || "不构成投资建议")}</p>
   `;
+}
+
+function actionLabel(action) {
+  return { buy: "买入", add: "加仓", hold: "持有", watch: "关注", dca: "定投" }[action] || action;
+}
+
+function renderReasonList(reasons) {
+  if (!reasons?.length) return '<li class="empty">暂无结构化理由</li>';
+  return reasons
+    .map((r) => {
+      const cls = r.type ? `reason-${r.type}` : "";
+      const label = r.label ? `<b>${escapeHtml(r.label)}</b> · ` : "";
+      return `<li class="${cls}">${label}${escapeHtml(r.detail || "")}</li>`;
+    })
+    .join("");
+}
+
+function renderRecommendationBoard(data) {
+  const board = data.recommendation_board;
+  const sentimentEl = document.getElementById("recSentiment");
+  const fundEl = document.getElementById("fundRecList");
+  const stockEl = document.getElementById("stockRecList");
+
+  if (!board) {
+    sentimentEl.innerHTML = '<p class="empty">暂无推荐看板数据</p>';
+    fundEl.innerHTML = "";
+    stockEl.innerHTML = "";
+    return;
+  }
+
+  const weeklyNote = board.weekly_recommend_date
+    ? ` · 含 ${board.weekly_recommend_date} 每周选基`
+    : "";
+  sentimentEl.innerHTML = `
+    <div class="outlook-meta">
+      <span class="outlook-tag">情绪 ${board.sentiment_score} · ${escapeHtml(board.sentiment_label || "")}</span>
+      ${weeklyNote ? `<span class="outlook-tag">${escapeHtml(weeklyNote.replace(" · ", ""))}</span>` : ""}
+    </div>
+    <p>${escapeHtml(board.sentiment_summary || "")}</p>
+  `;
+
+  const funds = board.fund_picks || [];
+  fundEl.innerHTML = funds.length
+    ? funds
+        .map(
+          (f) => `<div class="rec-card">
+        <div class="rec-card-head">
+          <div><b>${f.fund_code}</b> ${escapeHtml(f.fund_name)}<div class="rec-meta">${escapeHtml(f.theme || "")} · ${f.source === "weekly" ? "每周选基" : "日度匹配"}</div></div>
+          <span class="tag-action">${actionLabel(f.action)}</span>
+        </div>
+        <ul class="rec-reasons">${renderReasonList(f.reasons)}</ul>
+      </div>`
+        )
+        .join("")
+    : '<p class="empty">暂无基金推荐（需资金流与主题匹配）</p>';
+
+  const stocks = board.stock_picks || [];
+  stockEl.innerHTML = stocks.length
+    ? stocks
+        .map(
+          (s) => `<div class="rec-card">
+        <div class="rec-card-head">
+          <div><b>${escapeHtml(s.name)}</b><div class="rec-meta">${escapeHtml(s.sector)} · ${s.flow_type === "concept" ? "概念" : "行业"} · 板块净流入 ${s.sector_net_yi >= 0 ? "+" : ""}${s.sector_net_yi.toFixed(2)} 亿</div></div>
+          <span class="tag-action ${s.leader_change_pct >= 0 ? "rise" : "fall"}">${fmtPct(s.leader_change_pct)}</span>
+        </div>
+        <ul class="rec-reasons">${renderReasonList(s.reasons)}</ul>
+      </div>`
+        )
+        .join("")
+    : '<p class="empty">暂无龙头数据（行业接口需返回领涨股）</p>';
+}
+
+function renderFlowHistory(data) {
+  const trends = data.flow_trends;
+  const summaryEl = document.getElementById("flowHistSummary");
+  if (!trends) {
+    summaryEl.innerHTML = '<p class="empty">历史数据积累中（需连续运行日报）</p>';
+    if (chartFlowHist) chartFlowHist.clear();
+    if (chartHotSectors) chartHotSectors.clear();
+    return;
+  }
+
+  const chips = [
+    { label: "快照天数", value: `${trends.snapshot_days || 0} 天` },
+    { label: "北向近5日", value: `${trends.northbound_sum_5d_yi >= 0 ? "+" : ""}${(trends.northbound_sum_5d_yi || 0).toFixed(2)} 亿`, cls: pctClass(trends.northbound_sum_5d_yi) },
+    { label: "北向近10日", value: `${trends.northbound_sum_10d_yi >= 0 ? "+" : ""}${(trends.northbound_sum_10d_yi || 0).toFixed(2)} 亿`, cls: pctClass(trends.northbound_sum_10d_yi) },
+    { label: "主力方向5日均", value: `${(trends.direction_avg_5d || 0) >= 0 ? "+" : ""}${(trends.direction_avg_5d || 0).toFixed(2)}` },
+  ];
+  summaryEl.innerHTML = chips
+    .map(
+      (c) => `<div class="flow-chip"><span class="muted">${c.label}</span><b class="${c.cls || ""}">${escapeHtml(c.value)}</b></div>`
+    )
+    .join("");
+
+  if (!chartFlowHist) chartFlowHist = echarts.init(document.getElementById("chartFlowHist"));
+  if (!chartHotSectors) chartHotSectors = echarts.init(document.getElementById("chartHotSectors"));
+
+  const nb = trends.northbound_series || [];
+  const daily = trends.daily_series || [];
+
+  chartFlowHist.setOption({
+    backgroundColor: "transparent",
+    textStyle: { color: "#8b949e" },
+    tooltip: { trigger: "axis" },
+    legend: { textStyle: { color: "#8b949e" }, top: 0 },
+    grid: { left: 48, right: 16, top: 40, bottom: 28 },
+    xAxis: { type: "time", axisLine: { lineStyle: { color: "#2a3544" } } },
+    yAxis: {
+      type: "value",
+      name: "亿元",
+      splitLine: { lineStyle: { color: "#2a3544" } },
+    },
+    series: [
+      {
+        name: "北向净买额",
+        type: "bar",
+        data: nb.map((p) => [p.date, p.net_yi]),
+        itemStyle: {
+          color: (p) => (p.value[1] >= 0 ? "#ff4d4f" : "#52c41a"),
+        },
+      },
+      {
+        name: "本地主力方向",
+        type: "line",
+        yAxisIndex: 0,
+        smooth: true,
+        showSymbol: true,
+        data: daily.map((p) => [
+          p.date,
+          p.overall_direction === "inflow" ? 1 : p.overall_direction === "outflow" ? -1 : 0,
+        ]),
+        lineStyle: { width: 2, color: "#58a6ff" },
+        itemStyle: { color: "#58a6ff" },
+      },
+    ],
+  });
+
+  const hot = trends.hot_sectors || [];
+  chartHotSectors.setOption({
+    backgroundColor: "transparent",
+    title: { text: "阶段吸金板块（累计净流入）", left: 0, textStyle: { color: "#8b949e", fontSize: 13 } },
+    textStyle: { color: "#8b949e" },
+    tooltip: { trigger: "axis" },
+    grid: { left: 100, right: 16, top: 36, bottom: 20 },
+    xAxis: { type: "value", splitLine: { lineStyle: { color: "#2a3544" } } },
+    yAxis: {
+      type: "category",
+      data: hot.map((h) => h.name).reverse(),
+      axisLabel: { width: 90, overflow: "truncate" },
+    },
+    series: [
+      {
+        type: "bar",
+        data: hot.map((h) => h.cumulative_net_yi).reverse(),
+        itemStyle: { color: "#58a6ff" },
+        label: { show: true, position: "right", color: "#e6edf3" },
+      },
+    ],
+  });
 }
 
 function renderCards(data) {
@@ -476,6 +637,8 @@ async function populateDateSelect(manifest, currentDate) {
 function renderAll(data) {
   renderMeta(data);
   renderCards(data);
+  renderRecommendationBoard(data);
+  renderFlowHistory(data);
   renderFlow(data);
   renderOutlook(data);
   renderPositions(data);
@@ -500,6 +663,8 @@ async function init() {
     chartPie?.resize();
     chartFlowIn?.resize();
     chartFlowOut?.resize();
+    chartFlowHist?.resize();
+    chartHotSectors?.resize();
   });
 }
 

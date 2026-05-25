@@ -26,6 +26,8 @@ class SectorFlowItem:
     flow_type: str  # industry | concept
     inflow_yi: float | None = None
     outflow_yi: float | None = None
+    leader_stock: str | None = None
+    leader_change_pct: float | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -93,12 +95,21 @@ def _parse_sector_df(
     work["净额"] = pd.to_numeric(work["净额"], errors="coerce")
     work = work.dropna(subset=["净额"])
     name_col = "行业" if "行业" in work.columns else work.columns[1]
-    pct_col = next((c for c in work.columns if "涨跌幅" in str(c)), None)
+    pct_col = next((c for c in work.columns if "涨跌幅" in str(c) and "领涨" not in str(c)), None)
+    leader_col = "领涨股" if "领涨股" in work.columns else None
+    leader_pct_col = next(
+        (c for c in work.columns if "领涨股" in str(c) and "涨跌幅" in str(c)),
+        None,
+    )
 
     items: list[SectorFlowItem] = []
     for _, row in work.iterrows():
         inflow = row.get("流入资金")
         outflow = row.get("流出资金")
+        leader = str(row[leader_col]).strip() if leader_col and pd.notna(row.get(leader_col)) else None
+        leader_pct = None
+        if leader_pct_col and pd.notna(row.get(leader_pct_col)):
+            leader_pct = round(float(row[leader_pct_col]), 2)
         items.append(
             SectorFlowItem(
                 name=str(row[name_col]).strip(),
@@ -113,6 +124,8 @@ def _parse_sector_df(
                 outflow_yi=round(float(outflow), 2)
                 if outflow is not None and pd.notna(outflow)
                 else None,
+                leader_stock=leader or None,
+                leader_change_pct=leader_pct,
             )
         )
 

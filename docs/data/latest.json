@@ -1,7 +1,7 @@
 {
   "date": "2026-05-25",
   "data_as_of": "2026-05-25",
-  "generated_at": "2026-05-25T15:36:08",
+  "generated_at": "2026-05-25T23:52:54",
   "portfolio": {
     "total_market_value": 733.45,
     "total_cost_value": 650.01,
@@ -48,7 +48,7 @@
     "trade_date": "2026-05-25",
     "close": 4921.597,
     "daily_change_pct": 1.5789367228224211,
-    "data_source": "stock_zh_index_daily"
+    "data_source": "本地缓存"
   },
   "watchlist": [
     {
@@ -93,32 +93,9 @@
     }
   ],
   "advice": {
-    "market_summary": "今日沪深300上涨1.58%，人工智能板块大涨4.0%，持仓的易方达人工智能ETF联接A上涨3.8%，创新药板块小幅下跌。账户总市值733.45元，累计盈利12.84%。新闻方面，人工智能终端分级国家标准启动，创新药产业进入经营兑现期，美联储新任主席面临政策调整。",
+    "market_summary": "",
     "overall_risk_level": "medium",
-    "actions": [
-      {
-        "fund_code": "012734",
-        "action": "hold",
-        "ratio": 1.0,
-        "reason": "人工智能板块强势，持仓盈利15.92%，且距上次买入仅15天，处于换基冷却期，建议继续持有。",
-        "confidence": 0.9,
-        "rule_hits": [
-          "SWITCH_COOLDOWN"
-        ],
-        "requires_human_confirm": false
-      },
-      {
-        "fund_code": "012737",
-        "action": "hold",
-        "ratio": 1.0,
-        "reason": "创新药板块短期承压，但产业长期前景向好，距上次买入仅10天，处于换基冷却期，建议持有观察。",
-        "confidence": 0.8,
-        "rule_hits": [
-          "SWITCH_COOLDOWN"
-        ],
-        "requires_human_confirm": false
-      }
-    ],
+    "actions": [],
     "switch_candidates": [],
     "rule_signals": [
       {
@@ -151,8 +128,8 @@
         "source": "第一财经",
         "url": "http://finance.eastmoney.com/a/202605253748465675.html",
         "content_preview": "不过，沃什履新美联储注定带着改变的使命，带着纠偏2008年以来美联储的激进走位，担负着美联储回归保守政策的目的。 2008年次贷危机给世界带来的最突出改变就是美联储，这场危机将一个曾经保守到骨子里的机构，变成了一个激进的货币数量论者。",
-        "summary": "一财社论认为，沃什履新美联储将推动其回归保守政策范式。",
-        "summary_source": "llm"
+        "summary": "不过，沃什履新美联储注定带着改变的使命，带着纠偏2008年以来美联储的激进走位，担负着美联储回归保守政策的目的。 2008年次贷危机给世界带来的最突出改变就是美联储，这场危机将一个曾经保守到骨子里的机构，变成了一个激进的货币数量论者。",
+        "summary_source": "preview"
       },
       {
         "keyword": "人工智能",
@@ -161,8 +138,8 @@
         "source": "财联社",
         "url": "http://finance.eastmoney.com/a/202605253748279991.html",
         "content_preview": "5月25日午后，人工智能板块震荡上扬，截至收盘，中证人工智能主题指数上涨4.0%，中证科创创业人工智能指数上涨3.8%，上证科创板人工智能指数上涨2.6%。",
-        "summary": "5月25日午后，人工智能板块震荡上扬，多只人工智能指数收涨。",
-        "summary_source": "llm"
+        "summary": "5月25日午后，人工智能板块震荡上扬，截至收盘，中证人工智能主题指数上涨4.0%，中证科创创业人工智能指数上涨3.8%，上证科创板人工智能指数上涨2.6%。",
+        "summary_source": "preview"
       },
       {
         "keyword": "美联储",
@@ -171,8 +148,8 @@
         "source": "财联社",
         "url": "http://finance.eastmoney.com/a/202605253748242749.html",
         "content_preview": "全球央行 高盛：美联储大幅缩表门槛仍然很高 随着凯文·沃什被提名为下一任美联储主席，市场重新开始关注美联储资产负债表缩减问题。高盛认为，尽管未来几年美联储仍可能放缓扩表速度甚至阶段性维持资产负债表稳定，但真正“大幅缩表”的门槛依然很高。",
-        "summary": "高盛认为，尽管美联储可能放缓扩表，但大幅缩表的门槛仍然很高。",
-        "summary_source": "llm"
+        "summary": "全球央行 高盛：美联储大幅缩表门槛仍然很高 随着凯文·沃什被提名为下一任美联储主席，市场重新开始关注美联储资产负债表缩减问题。高盛认为，尽管未来几年美联储仍可能放缓扩表速度甚至阶段性维持资产负债表稳定，但真正“大幅缩表”的门槛依然很高。",
+        "summary_source": "preview"
       },
       {
         "keyword": "创新药",
@@ -181,8 +158,8 @@
         "source": "界面新闻",
         "url": "http://finance.eastmoney.com/a/202605253748205252.html",
         "content_preview": "A股创新药：估值运行于历史顶部区间 国证创新药指数选取A股市场主营业务涉及创新药研发的上市公司作为样本，反映沪深市场创新药产业的整体表现。",
-        "summary": "国证创新药指数选取A股创新药公司，当前估值运行于历史顶部区间。",
-        "summary_source": "llm"
+        "summary": "A股创新药：估值运行于历史顶部区间 国证创新药指数选取A股市场主营业务涉及创新药研发的上市公司作为样本，反映沪深市场创新药产业的整体表现。",
+        "summary_source": "preview"
       },
       {
         "keyword": "创新药",
@@ -191,8 +168,8 @@
         "source": "上观新闻",
         "url": "http://finance.eastmoney.com/a/202605253748125391.html",
         "content_preview": "为此，白皮书详细剖析了中国创新药从实验室突破走向市场实现价值兑现的核心瓶颈，系统构建了商业健康险支持创新药械的全流程管理方法论，并明确了以统一产业平台为核心的未来发展路径建议，旨在打造中国创新药多元支付领域的“行业基准文本”，为商业健康险…",
-        "summary": "《中国创新药械多元支付白皮书（2026）》发布，分析创新药价值兑现瓶颈。",
-        "summary_source": "llm"
+        "summary": "为此，白皮书详细剖析了中国创新药从实验室突破走向市场实现价值兑现的核心瓶颈，系统构建了商业健康险支持创新药械的全流程管理方法论，并明确了以统一产业平台为核心的未来发展路径建议，旨在打造中国创新药多元支付领域的“行业基准文本”，为商业健康险…",
+        "summary_source": "preview"
       },
       {
         "keyword": "人工智能",
@@ -201,8 +178,8 @@
         "source": "证券时报网",
         "url": "http://finance.eastmoney.com/a/202605253748112974.html",
         "content_preview": "企查查APP显示，近日，奥尼人工智能技术（深圳）有限公司成立，法定代表人为吴国华，注册资本为1000万元，经营范围包含：人工智能硬件销售；人工智能行业应用系统集成服务；人工智能基础软件开发；电子产品销售等。",
-        "summary": "奥尼电子等成立人工智能技术公司，注册资本1000万元。",
-        "summary_source": "llm"
+        "summary": "企查查APP显示，近日，奥尼人工智能技术（深圳）有限公司成立，法定代表人为吴国华，注册资本为1000万元，经营范围包含：人工智能硬件销售；人工智能行业应用系统集成服务；人工智能基础软件开发；电子产品销售等。",
+        "summary_source": "preview"
       },
       {
         "keyword": "创新药",
@@ -211,8 +188,8 @@
         "source": "界面新闻",
         "url": "http://finance.eastmoney.com/a/202605253748074221.html",
         "content_preview": "港股创新药ETF景顺(513780)可T+0交易，指数囊括药明生物、信达生物、百济神州等港股创新药龙头；按照申万二级行业分类，指数生物制品+化学制药权重占比超85%，助力高效布局高弹性港股创新药板块。（注：相关个股仅为指数成分股展示，不作…",
-        "summary": "创新药产业进入经营兑现期，2026年收入利润增速预计达25%-30%。",
-        "summary_source": "llm"
+        "summary": "港股创新药ETF景顺(513780)可T+0交易，指数囊括药明生物、信达生物、百济神州等港股创新药龙头；按照申万二级行业分类，指数生物制品+化学制药权重占比超85%，助力高效布局高弹性港股创新药板块。（注：相关个股仅为指数成分股展示，不作…",
+        "summary_source": "preview"
       },
       {
         "keyword": "人工智能",
@@ -221,8 +198,8 @@
         "source": "经济日报",
         "url": "http://finance.eastmoney.com/a/202605253747550568.html",
         "content_preview": "近日，工业和信息化部、商务部、市场监管总局等部门联合启动实施《人工智能终端智能化分级》系列国家标准，为人工智能终端的“聪明程度”划定统一标尺。",
-        "summary": "多部门联合启动实施《人工智能终端智能化分级》系列国家标准。",
-        "summary_source": "llm"
+        "summary": "近日，工业和信息化部、商务部、市场监管总局等部门联合启动实施《人工智能终端智能化分级》系列国家标准，为人工智能终端的“聪明程度”划定统一标尺。",
+        "summary_source": "preview"
       },
       {
         "keyword": "美联储",
@@ -231,8 +208,18 @@
         "source": "上观新闻",
         "url": "http://finance.eastmoney.com/a/202605253747553627.html",
         "content_preview": "这意味着，沃什的上任或许并非单纯的人事更替，而是美联储治理理念、政策沟通方式和政治关系的一次重要调整。 或重塑美联储公信力 沃什面临的最大机遇，是借助“改革型主席”的形象重塑美联储的公信力。",
-        "summary": "新任美联储主席沃什面临治理理念、政策沟通等多重挑战。",
-        "summary_source": "llm"
+        "summary": "这意味着，沃什的上任或许并非单纯的人事更替，而是美联储治理理念、政策沟通方式和政治关系的一次重要调整。 或重塑美联储公信力 沃什面临的最大机遇，是借助“改革型主席”的形象重塑美联储的公信力。",
+        "summary_source": "preview"
+      },
+      {
+        "keyword": "未来国家政策热点",
+        "title": "国家发展改革委解读当前经济运行热点 用足用好宏观政策 及时推出相应举措",
+        "published_at": "2026-05-23 06:08:20",
+        "source": "经济日报",
+        "url": "http://finance.eastmoney.com/a/202605233747298317.html",
+        "content_preview": "李超说，国家发展改革委将认真抓好贯彻落实，在落实既定部署方面，用足用好宏观政策，加快推动稳就业、稳企业、稳市场、稳预期相关政策落地见效；在政策预研储备方面，加强经济监测预测预警，不断完善政策工具箱，根据形势需要及时推出相应举措，推动“十五…",
+        "summary": "李超说，国家发展改革委将认真抓好贯彻落实，在落实既定部署方面，用足用好宏观政策，加快推动稳就业、稳企业、稳市场、稳预期相关政策落地见效；在政策预研储备方面，加强经济监测预测预警，不断完善政策工具箱，根据形势需要及时推出相应举措，推动“十五…",
+        "summary_source": "preview"
       },
       {
         "keyword": "纳斯达克",
@@ -241,8 +228,8 @@
         "source": "第一财经",
         "url": "http://finance.eastmoney.com/a/202605233747107421.html",
         "content_preview": "老虎证券跌25.26%，新氧跌16.10%，小赢科技跌8.58%，水滴公司跌7.32%，蔚来跌7.14%。",
-        "summary": "纳斯达克中国金龙指数收跌2.22%，老虎证券等跌幅居前。",
-        "summary_source": "llm"
+        "summary": "老虎证券跌25.26%，新氧跌16.10%，小赢科技跌8.58%，水滴公司跌7.32%，蔚来跌7.14%。",
+        "summary_source": "preview"
       },
       {
         "keyword": "纳斯达克",
@@ -251,24 +238,14 @@
         "source": "东方财富Choice数据",
         "url": "http://finance.eastmoney.com/a/202605233747101879.html",
         "content_preview": "纳斯达克中国金龙指数收跌2.21%。 富途控股跌超27%，向上融科跌超25%，美华创富跌超9%，蔚来跌超7%，Enhanced Group Inc.跌超6%。",
-        "summary": "纳斯达克中国金龙指数收跌2.21%，富途控股跌超27%。",
-        "summary_source": "llm"
-      },
-      {
-        "keyword": "纳斯达克",
-        "title": "纳斯达克金龙中国指数跌超2%",
-        "published_at": "2026-05-22 21:33:41",
-        "source": "东方财富Choice数据",
-        "url": "http://finance.eastmoney.com/a/202605223747025845.html",
-        "content_preview": "纳斯达克金龙中国指数跌超2%。",
-        "summary": "纳斯达克金龙中国指数跌超2%。",
-        "summary_source": "llm"
+        "summary": "纳斯达克中国金龙指数收跌2.21%。 富途控股跌超27%，向上融科跌超25%，美华创富跌超9%，蔚来跌超7%，Enhanced Group Inc.跌超6%。",
+        "summary_source": "preview"
       }
     ],
     "news_error": null,
-    "skipped": false,
-    "skip_reason": null,
-    "model": "deepseek-chat"
+    "skipped": true,
+    "skip_reason": "未启用 AI（--no-ai）",
+    "model": null
   },
   "market_flow": {
     "trade_date": "2026-05-25",
@@ -288,7 +265,9 @@
         "change_pct": 2.19,
         "flow_type": "concept",
         "inflow_yi": 6099.8,
-        "outflow_yi": 5713.05
+        "outflow_yi": 5713.05,
+        "leader_stock": "鸿仕达",
+        "leader_change_pct": 20.33
       },
       {
         "name": "半导体",
@@ -296,7 +275,9 @@
         "change_pct": 4.52,
         "flow_type": "industry",
         "inflow_yi": 2432.09,
-        "outflow_yi": 2163.91
+        "outflow_yi": 2163.91,
+        "leader_stock": "东芯股份",
+        "leader_change_pct": 20.0
       },
       {
         "name": "存储芯片",
@@ -304,7 +285,9 @@
         "change_pct": 4.01,
         "flow_type": "concept",
         "inflow_yi": 2585.41,
-        "outflow_yi": 2355.64
+        "outflow_yi": 2355.64,
+        "leader_stock": "东芯股份",
+        "leader_change_pct": 20.0
       },
       {
         "name": "共封装光学(CPO)",
@@ -312,7 +295,9 @@
         "change_pct": 2.71,
         "flow_type": "concept",
         "inflow_yi": 2563.89,
-        "outflow_yi": 2396.38
+        "outflow_yi": 2396.38,
+        "leader_stock": "飞荣达",
+        "leader_change_pct": 15.24
       },
       {
         "name": "先进封装",
@@ -320,7 +305,9 @@
         "change_pct": 4.63,
         "flow_type": "concept",
         "inflow_yi": 1774.39,
-        "outflow_yi": 1628.5
+        "outflow_yi": 1628.5,
+        "leader_stock": "鸿仕达",
+        "leader_change_pct": 20.33
       }
     ],
     "top_outflows": [
@@ -330,7 +317,9 @@
         "change_pct": -0.5,
         "flow_type": "concept",
         "inflow_yi": 1797.65,
-        "outflow_yi": 2026.34
+        "outflow_yi": 2026.34,
+        "leader_stock": "飞荣达",
+        "leader_change_pct": 15.24
       },
       {
         "name": "固态电池",
@@ -338,7 +327,9 @@
         "change_pct": -0.59,
         "flow_type": "concept",
         "inflow_yi": 913.84,
-        "outflow_yi": 1077.46
+        "outflow_yi": 1077.46,
+        "leader_stock": "德龙激光",
+        "leader_change_pct": 14.7
       },
       {
         "name": "储能",
@@ -346,7 +337,9 @@
         "change_pct": 0.05,
         "flow_type": "concept",
         "inflow_yi": 2514.56,
-        "outflow_yi": 2664.36
+        "outflow_yi": 2664.36,
+        "leader_stock": "鸿仕达",
+        "leader_change_pct": 20.33
       },
       {
         "name": "新能源汽车",
@@ -354,7 +347,9 @@
         "change_pct": 0.12,
         "flow_type": "concept",
         "inflow_yi": 3090.78,
-        "outflow_yi": 3239.53
+        "outflow_yi": 3239.53,
+        "leader_stock": "鸿仕达",
+        "leader_change_pct": 20.33
       },
       {
         "name": "一带一路",
@@ -362,7 +357,9 @@
         "change_pct": -0.22,
         "flow_type": "concept",
         "inflow_yi": 1292.06,
-        "outflow_yi": 1440.48
+        "outflow_yi": 1440.48,
+        "leader_stock": "商络电子",
+        "leader_change_pct": 20.0
       }
     ],
     "theme_relevant": [
@@ -372,7 +369,9 @@
         "change_pct": 2.19,
         "flow_type": "concept",
         "inflow_yi": 6099.8,
-        "outflow_yi": 5713.05
+        "outflow_yi": 5713.05,
+        "leader_stock": "鸿仕达",
+        "leader_change_pct": 20.33
       },
       {
         "name": "半导体",
@@ -380,7 +379,9 @@
         "change_pct": 4.52,
         "flow_type": "industry",
         "inflow_yi": 2432.09,
-        "outflow_yi": 2163.91
+        "outflow_yi": 2163.91,
+        "leader_stock": "东芯股份",
+        "leader_change_pct": 20.0
       },
       {
         "name": "存储芯片",
@@ -388,7 +389,9 @@
         "change_pct": 4.01,
         "flow_type": "concept",
         "inflow_yi": 2585.41,
-        "outflow_yi": 2355.64
+        "outflow_yi": 2355.64,
+        "leader_stock": "东芯股份",
+        "leader_change_pct": 20.0
       }
     ],
     "data_source": "stock_fund_flow_industry+stock_fund_flow_concept+stock_hsgt_fund_flow_summary_em",
@@ -397,40 +400,230 @@
   "market_outlook": {
     "horizon": "1-2周",
     "overall_bias": "bullish",
-    "capital_flow_view": "今日主力资金整体净流入，芯片概念、半导体、存储芯片等科技板块获大幅资金流入，净流入分别达386.75亿、268.18亿、229.77亿，显示资金偏好科技成长。北向资金今日无交易，数据中性。持仓主题中的人工智能相关板块资金流入显著，利好持仓。",
-    "policy_event_view": "多部门联合启动《人工智能终端智能化分级》国家标准，政策利好人工智能产业。美联储方面，沃什履新可能推动保守政策，但高盛认为大幅缩表门槛仍高，短期外部流动性风险有限。创新药产业进入经营兑现期，收入利润增速预计25%-30%，但估值处于历史顶部区间，需关注。",
-    "theme_outlook": [
+    "capital_flow_view": "程序判定主力方向：主力偏多（净流入）。净流入前列：芯片概念, 半导体, 存储芯片。北向合计 +0.00 亿元（沪 +0.00 / 深 +0.00）。",
+    "policy_event_view": "一财社论：为美联储启动保守范式做好积极准备；人工智能板块震荡上扬，关注人工智能ETF易方达（159819）等配置价值；海外研选日报0525 | 高盛：美联储大幅缩表门槛仍然很高",
+    "theme_outlook": [],
+    "key_risks": [
+      "数据不完整时方向判断可靠性下降"
+    ],
+    "confidence": 0.45,
+    "disclaimer": "以上仅为信息整理与方向研判，不构成投资建议。",
+    "skipped": true,
+    "skip_reason": "未配置 LLM 或已禁用 AI 方向分析",
+    "model": null
+  },
+  "flow_trends": {
+    "lookback_days": 30,
+    "snapshot_days": 1,
+    "daily_series": [
       {
-        "theme": "人工智能",
-        "bias": "bullish",
-        "reason": "资金大幅流入芯片、半导体等AI相关板块，政策发布国家标准，板块指数上涨4%，短期情绪积极。"
-      },
-      {
-        "theme": "宽基",
-        "bias": "neutral",
-        "reason": "沪深300今日上涨1.58%，但北向资金无交易，整体资金面中性，需观察后续持续性。"
-      },
-      {
-        "theme": "指数型-海外股票",
-        "bias": "bearish",
-        "reason": "纳斯达克中国金龙指数连续两日下跌超2%，海外中概股承压，可能影响相关海外指数基金。"
-      },
-      {
-        "theme": "指数型-股票",
-        "bias": "neutral",
-        "reason": "整体市场资金流入科技板块，但宽基指数表现分化，需关注结构性机会。"
+        "date": "2026-05-25",
+        "overall_direction": "inflow",
+        "overall_label": "主力偏多（净流入）",
+        "northbound_net_yi": 0.0,
+        "top_sector": "芯片概念",
+        "top_sector_net_yi": 386.75
       }
     ],
-    "key_risks": [
-      "美联储政策转向不确定性",
-      "海外中概股持续下跌风险",
-      "创新药估值高位回调风险"
+    "northbound_series": [],
+    "northbound_sum_5d_yi": 0,
+    "northbound_sum_10d_yi": 0,
+    "direction_avg_5d": 1.0,
+    "direction_avg_10d": 1.0,
+    "hot_sectors": [
+      {
+        "name": "芯片概念",
+        "cumulative_net_yi": 386.75
+      },
+      {
+        "name": "半导体",
+        "cumulative_net_yi": 268.18
+      },
+      {
+        "name": "存储芯片",
+        "cumulative_net_yi": 229.77
+      },
+      {
+        "name": "共封装光学(CPO)",
+        "cumulative_net_yi": 167.51
+      },
+      {
+        "name": "先进封装",
+        "cumulative_net_yi": 145.89
+      }
     ],
-    "confidence": 0.7,
-    "disclaimer": "以上分析基于公开数据和研究性观点，仅供参考，不构成投资建议。",
-    "skipped": false,
-    "skip_reason": null,
-    "model": "deepseek-chat"
+    "sentiment_score": 62.0,
+    "sentiment_label": "中性"
+  },
+  "recommendation_board": {
+    "sentiment_score": 62.0,
+    "sentiment_label": "中性",
+    "sentiment_summary": "今日主力主力偏多（净流入）；情绪指数 62.0（中性）。北向近5日/10日累计 +0.00/+0.00 亿元。阶段吸金板块：芯片概念(386.75亿)、半导体(268.18亿)、存储芯片(229.77亿)。",
+    "fund_picks": [
+      {
+        "fund_code": "012734",
+        "fund_name": "易方达中证人工智能主题ETF联接A",
+        "action": "add",
+        "theme": "推荐池",
+        "score": 80.0,
+        "reasons": [
+          {
+            "type": "weekly",
+            "label": "每周选基",
+            "detail": "核心持仓补仓，人工智能长期成长逻辑明确，当前净值相对成本较低，适合加仓摊薄成本。"
+          },
+          {
+            "type": "sentiment",
+            "label": "市场情绪",
+            "detail": "中性（62.0 分），北向近5日 +0.00 亿"
+          }
+        ],
+        "source": "weekly",
+        "daily_growth_pct": null,
+        "return_1y": null
+      },
+      {
+        "fund_code": "002900",
+        "fund_name": "南方中证500信息技术联接A",
+        "action": "buy",
+        "theme": "宽基",
+        "score": 75.0,
+        "reasons": [
+          {
+            "type": "weekly",
+            "label": "每周选基",
+            "detail": "满足宽基指数最低配置要求（≥50%），中证500覆盖中小盘科技相关成分，与现有人工智能形成互补，分散行业风险。"
+          },
+          {
+            "type": "flow",
+            "label": "资金面对齐",
+            "detail": "芯片概念 净流入 +386.75 亿"
+          },
+          {
+            "type": "flow",
+            "label": "资金面对齐",
+            "detail": "半导体 净流入 +268.18 亿"
+          },
+          {
+            "type": "sentiment",
+            "label": "市场情绪",
+            "detail": "中性（62.0 分），北向近5日 +0.00 亿"
+          }
+        ],
+        "source": "weekly",
+        "daily_growth_pct": null,
+        "return_1y": 84.05
+      },
+      {
+        "fund_code": "016370",
+        "fund_name": "信澳业绩驱动混合A",
+        "action": "buy",
+        "theme": "推荐池",
+        "score": 70.0,
+        "reasons": [
+          {
+            "type": "weekly",
+            "label": "每周选基",
+            "detail": "近一年业绩突出，基金经理选股能力较强，与核心和宽基形成风格互补，提升组合弹性。"
+          },
+          {
+            "type": "sentiment",
+            "label": "市场情绪",
+            "detail": "中性（62.0 分），北向近5日 +0.00 亿"
+          }
+        ],
+        "source": "weekly",
+        "daily_growth_pct": null,
+        "return_1y": 340.59
+      }
+    ],
+    "stock_picks": [
+      {
+        "name": "鸿仕达",
+        "sector": "芯片概念",
+        "sector_net_yi": 386.75,
+        "sector_change_pct": 2.19,
+        "leader_change_pct": 20.33,
+        "flow_type": "concept",
+        "score": 197.55,
+        "reasons": [
+          {
+            "type": "flow",
+            "label": "板块主力净流入",
+            "detail": "芯片概念 今日净流入 +386.75 亿元，涨幅 2.19%"
+          },
+          {
+            "type": "sector",
+            "label": "板块龙头",
+            "detail": "鸿仕达 为 芯片概念 领涨股，涨幅 20.33%"
+          },
+          {
+            "type": "flow",
+            "label": "近阶段持续吸金",
+            "detail": "近 30 日累计净流入约 386.75 亿"
+          }
+        ]
+      },
+      {
+        "name": "东芯股份",
+        "sector": "半导体",
+        "sector_net_yi": 268.18,
+        "sector_change_pct": 4.52,
+        "leader_change_pct": 20.0,
+        "flow_type": "industry",
+        "score": 151.79,
+        "reasons": [
+          {
+            "type": "flow",
+            "label": "板块主力净流入",
+            "detail": "半导体 今日净流入 +268.18 亿元，涨幅 4.52%"
+          },
+          {
+            "type": "sector",
+            "label": "板块龙头",
+            "detail": "东芯股份 为 半导体 领涨股，涨幅 20.0%"
+          },
+          {
+            "type": "flow",
+            "label": "近阶段持续吸金",
+            "detail": "近 30 日累计净流入约 268.18 亿"
+          }
+        ]
+      },
+      {
+        "name": "飞荣达",
+        "sector": "共封装光学(CPO)",
+        "sector_net_yi": 167.51,
+        "sector_change_pct": 2.71,
+        "leader_change_pct": 15.24,
+        "flow_type": "concept",
+        "score": 100.19,
+        "reasons": [
+          {
+            "type": "flow",
+            "label": "板块主力净流入",
+            "detail": "共封装光学(CPO) 今日净流入 +167.51 亿元，涨幅 2.71%"
+          },
+          {
+            "type": "sector",
+            "label": "板块龙头",
+            "detail": "飞荣达 为 共封装光学(CPO) 领涨股，涨幅 15.24%"
+          },
+          {
+            "type": "flow",
+            "label": "近阶段持续吸金",
+            "detail": "近 30 日累计净流入约 167.51 亿"
+          }
+        ]
+      }
+    ],
+    "weekly_recommend_date": "2026-05-21",
+    "data_sources": [
+      "stock_fund_flow_industry+stock_fund_flow_concept+stock_hsgt_fund_flow_summary_em",
+      "capital_flow_history",
+      "weekly_recommend:2026-05-21",
+      "sector_leader_stocks"
+    ]
   },
   "charts": {
     "lookback_days": 90,
