@@ -19,7 +19,7 @@ function fmtMoney(v, signed = false) {
 
 function pctClass(v) {
   if (v == null) return "";
-  return v >= 0 ? "up" : "down";
+  return v >= 0 ? "rise" : "fall";
 }
 
 function dataUrl(name) {

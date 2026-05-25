@@ -4,11 +4,11 @@
   --border: #2a3544;
   --text: #e6edf3;
   --muted: #8b949e;
-  --up: #f85149;      /* A股：上涨红 */
-  --down: #3fb950;    /* A股：下跌绿 */
+  --rise: #ff4d4f;      /* A股：上涨红 */
+  --fall: #52c41a;      /* A股：下跌绿 */
   --accent: #58a6ff;
   --warn: #d29922;
-  --danger: #f85149;  /* 规则 critical 告警，与涨跌色分开 */
+  --danger: #ff4d4f;    /* 规则 critical 告警 */
 }
 
 * { box-sizing: border-box; }
@@ -86,8 +86,12 @@ select, .btn {
 .card .value { font-size: 1.35rem; font-weight: 600; margin-top: 4px; }
 .card .sub { font-size: 0.85rem; margin-top: 4px; }
 
-.up { color: var(--up); }
-.down { color: var(--down); }
+.rise { color: var(--rise) !important; }
+.fall { color: var(--fall) !important; }
+
+/* 兼容旧类名（若缓存了旧 js） */
+.up { color: var(--rise) !important; }
+.down { color: var(--fall) !important; }
 
 .chart { width: 100%; height: 320px; }
 .chart-sm { height: 280px; }
