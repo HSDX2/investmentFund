@@ -4,10 +4,11 @@
   --border: #2a3544;
   --text: #e6edf3;
   --muted: #8b949e;
-  --up: #3fb950;
-  --down: #f85149;
+  --up: #f85149;      /* A股：上涨红 */
+  --down: #3fb950;    /* A股：下跌绿 */
   --accent: #58a6ff;
   --warn: #d29922;
+  --danger: #f85149;  /* 规则 critical 告警，与涨跌色分开 */
 }
 
 * { box-sizing: border-box; }
@@ -119,7 +120,7 @@ th { color: var(--muted); font-weight: 500; }
   font-size: 0.88rem;
 }
 
-.rule-list .sev-critical { color: var(--down); }
+.rule-list .sev-critical { color: var(--danger); }
 .rule-list .sev-warning { color: var(--warn); }
 .rule-list .sev-info { color: var(--muted); }
 
