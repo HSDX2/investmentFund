@@ -357,11 +357,12 @@ function renderFlowHistory(data) {
     { label: "主力方向5日均", value: `${(trends.direction_avg_5d || 0) >= 0 ? "+" : ""}${(trends.direction_avg_5d || 0).toFixed(2)}` },
   ];
   const note = trends.northbound_note || (trends.northbound_hist_end ? `官方日度北向净买额止于 ${trends.northbound_hist_end}` : "");
-  summaryEl.innerHTML = `${note ? `<p class="hint">${escapeHtml(note)}</p>` : ""}${chips
+  const chipsHtml = chips
     .map(
       (c) => `<div class="flow-chip"><span class="muted">${c.label}</span><b class="${c.cls || ""}">${escapeHtml(c.value)}</b></div>`
     )
     .join("");
+  summaryEl.innerHTML = (note ? `<p class="hint">${escapeHtml(note)}</p>` : "") + chipsHtml;
 
   if (!chartFlowHist) chartFlowHist = echarts.init(document.getElementById("chartFlowHist"));
   if (!chartHotSectors) chartHotSectors = echarts.init(document.getElementById("chartHotSectors"));
