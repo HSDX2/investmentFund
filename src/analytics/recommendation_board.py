@@ -260,13 +260,22 @@ def _build_fund_picks_from_weekly(
                 )
             )
 
-        if flow_trends.get("sentiment_label"):
+        if flow_trends.get("northbound_disclosed") and flow_trends.get("northbound_sum_5d_yi") is not None:
             reasons.append(
                 ReasonItem(
                     "sentiment",
                     "市场情绪",
                     f"{flow_trends.get('sentiment_label')}（{flow_trends.get('sentiment_score')} 分），"
                     f"北向近5日 {flow_trends.get('northbound_sum_5d_yi', 0):+.2f} 亿",
+                )
+            )
+        else:
+            reasons.append(
+                ReasonItem(
+                    "sentiment",
+                    "市场情绪",
+                    f"{flow_trends.get('sentiment_label')}（{flow_trends.get('sentiment_score')} 分），"
+                    "北向日度净买额已暂停披露",
                 )
             )
 
@@ -347,7 +356,13 @@ def _build_fund_picks_daily(
                 "sentiment",
                 "市场情绪",
                 f"{flow_trends.get('sentiment_label')}（{flow_trends.get('sentiment_score')}），"
-                f"主力近5日方向均值 {flow_trends.get('direction_avg_5d', 0):+.2f}",
+                + (
+                    f"北向近5日 {flow_trends.get('northbound_sum_5d_yi', 0):+.2f} 亿"
+                    if flow_trends.get("northbound_disclosed")
+                    and flow_trends.get("northbound_sum_5d_yi") is not None
+                    else "北向净买额已暂停披露"
+                )
+                + f"；主力近5日方向均值 {flow_trends.get('direction_avg_5d', 0):+.2f}",
             )
         )
 
@@ -421,13 +436,19 @@ def build_recommendation_board(
 
     nb5 = flow_trends.get("northbound_sum_5d_yi")
     nb10 = flow_trends.get("northbound_sum_10d_yi")
+    nb_ok = flow_trends.get("northbound_disclosed") and nb5 is not None
     hot = flow_trends.get("hot_sectors") or []
     hot_txt = "、".join(f"{h['name']}({h['cumulative_net_yi']}亿)" for h in hot[:3]) or "—"
 
     overall = capital_flow.overall_label if capital_flow else "—"
+    nb_part = (
+        f"北向近5日/10日累计 {nb5:+.2f}/{nb10:+.2f} 亿元。"
+        if nb_ok
+        else "北向日度净买额已暂停披露，请看行业/概念主力流向。"
+    )
     sentiment_summary = (
         f"今日主力{overall}；情绪指数 {sentiment_score}（{sentiment_label}）。"
-        f"北向近5日/10日累计 {nb5:+.2f}/{nb10:+.2f} 亿元。"
+        f"{nb_part}"
         f"阶段吸金板块：{hot_txt}。"
     )
 

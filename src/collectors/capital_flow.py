@@ -10,6 +10,15 @@ from typing import Any
 import akshare as ak
 import pandas as pd
 
+NORTHBOUND_DISCLOSURE_NOTE = (
+    "北向资金每日「成交净买额」自 2024-08-19 起交易所已暂停披露，"
+    "第三方接口（含 AkShare/东方财富）返回 0 或空值属正常，不代表当日无交易。"
+    "可参考下方 A 股行业/概念主力资金与南向资金。"
+)
+
+# AkShare 历史接口最后有效日期（之后官方不再披露日度净买额）
+NORTHBOUND_HIST_END = "2024-08-16"
+
 DEFAULT_THEME_KEYWORDS: dict[str, list[str]] = {
     "人工智能": ["人工智能", "AI", "半导体", "芯片", "算力", "机器人"],
     "创新药": ["创新药", "医药", "生物", "医疗", "制药"],
@@ -36,10 +45,23 @@ class SectorFlowItem:
 @dataclass
 class NorthboundFlow:
     trade_date: str
-    sh_net_yi: float
-    sz_net_yi: float
-    total_net_yi: float
-    direction: str  # inflow | outflow | neutral
+    sh_net_yi: float | None
+    sz_net_yi: float | None
+    total_net_yi: float | None
+    direction: str  # inflow | outflow | neutral | unavailable
+    disclosed: bool = True
+    note: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class SouthboundFlow:
+    trade_date: str
+    sh_net_yi: float | None
+    sz_net_yi: float | None
+    total_net_yi: float | None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -51,6 +73,7 @@ class CapitalFlowSnapshot:
     overall_direction: str = "neutral"  # inflow | outflow | neutral
     overall_label: str = "中性"
     northbound: NorthboundFlow | None = None
+    southbound: SouthboundFlow | None = None
     top_inflows: list[SectorFlowItem] = field(default_factory=list)
     top_outflows: list[SectorFlowItem] = field(default_factory=list)
     theme_relevant: list[SectorFlowItem] = field(default_factory=list)
@@ -63,6 +86,7 @@ class CapitalFlowSnapshot:
             "overall_direction": self.overall_direction,
             "overall_label": self.overall_label,
             "northbound": self.northbound.to_dict() if self.northbound else None,
+            "southbound": self.southbound.to_dict() if self.southbound else None,
             "top_inflows": [x.to_dict() for x in self.top_inflows],
             "top_outflows": [x.to_dict() for x in self.top_outflows],
             "theme_relevant": [x.to_dict() for x in self.theme_relevant],
@@ -134,31 +158,86 @@ def _parse_sector_df(
     return inflows, outflows
 
 
-def _fetch_northbound() -> NorthboundFlow | None:
-    df = ak.stock_hsgt_fund_flow_summary_em()
+def _parse_net_yi(row: pd.Series) -> float | None:
+    """优先成交净买额，其次资金净流入；无效时返回 None。"""
+    for col in ("成交净买额", "资金净流入"):
+        val = row.get(col)
+        if val is None or (isinstance(val, float) and pd.isna(val)):
+            continue
+        try:
+            return round(float(val), 2)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _fetch_northbound_from_df(df: pd.DataFrame) -> NorthboundFlow | None:
     if df is None or df.empty:
         return None
 
     trade_date = str(df.iloc[0].get("交易日", date.today().isoformat()))
-    sh_net = 0.0
-    sz_net = 0.0
+    sh_net: float | None = None
+    sz_net: float | None = None
+    sh_seen = sz_seen = False
+
     for _, row in df.iterrows():
         if str(row.get("资金方向", "")).strip() != "北向":
             continue
         board = str(row.get("板块", ""))
-        net = float(row.get("资金净流入") or 0)
-        if "沪股通" in board:
-            sh_net += net
-        elif "深股通" in board:
-            sz_net += net
+        net = _parse_net_yi(row)
+        if "沪股通" in board and "港股通" not in board:
+            sh_net = (sh_net or 0) + net if net is not None else sh_net
+            sh_seen = True
+        elif "深股通" in board and "港股通" not in board:
+            sz_net = (sz_net or 0) + net if net is not None else sz_net
+            sz_seen = True
 
-    total = round(sh_net + sz_net, 2)
+    has_value = any(v is not None and v != 0 for v in (sh_net, sz_net))
+    if not has_value and (sh_seen or sz_seen):
+        return NorthboundFlow(
+            trade_date=trade_date,
+            sh_net_yi=None,
+            sz_net_yi=None,
+            total_net_yi=None,
+            direction="unavailable",
+            disclosed=False,
+            note=NORTHBOUND_DISCLOSURE_NOTE,
+        )
+
+    total = round((sh_net or 0) + (sz_net or 0), 2) if has_value else None
     return NorthboundFlow(
         trade_date=trade_date,
-        sh_net_yi=round(sh_net, 2),
-        sz_net_yi=round(sz_net, 2),
+        sh_net_yi=sh_net,
+        sz_net_yi=sz_net,
         total_net_yi=total,
-        direction=_direction_from_net(total, threshold=10.0),
+        direction=_direction_from_net(total or 0, threshold=10.0) if total is not None else "neutral",
+        disclosed=True,
+    )
+
+
+def _fetch_southbound(df: pd.DataFrame, trade_date: str) -> SouthboundFlow | None:
+    sh_net: float | None = None
+    sz_net: float | None = None
+    for _, row in df.iterrows():
+        if str(row.get("资金方向", "")).strip() != "南向":
+            continue
+        board = str(row.get("板块", ""))
+        net = _parse_net_yi(row)
+        if net is None:
+            continue
+        if "港股通(沪)" in board or ("沪" in board and "港股通" in board):
+            sh_net = (sh_net or 0) + net
+        elif "港股通(深)" in board or ("深" in board and "港股通" in board):
+            sz_net = (sz_net or 0) + net
+
+    if sh_net is None and sz_net is None:
+        return None
+    total = round((sh_net or 0) + (sz_net or 0), 2)
+    return SouthboundFlow(
+        trade_date=trade_date,
+        sh_net_yi=sh_net,
+        sz_net_yi=sz_net,
+        total_net_yi=total,
     )
 
 
@@ -195,7 +274,7 @@ def _infer_overall_direction(
 ) -> tuple[str, str]:
     score = 0.0
     if northbound:
-        score += northbound.total_net_yi / 20.0
+        score += (northbound.total_net_yi or 0) / 20.0
 
     if top_inflows:
         score += sum(x.net_inflow_yi for x in top_inflows[:3]) / 300.0
@@ -265,9 +344,12 @@ def fetch_capital_flow_snapshot(
             errors.append(f"概念资金流: {e}")
 
     northbound: NorthboundFlow | None = None
+    southbound: SouthboundFlow | None = None
     time.sleep(interval)
     try:
-        northbound = _fetch_northbound()
+        summary_df = ak.stock_hsgt_fund_flow_summary_em()
+        northbound = _fetch_northbound_from_df(summary_df)
+        southbound = _fetch_southbound(summary_df, str(summary_df.iloc[0].get("交易日", trade_date)))
         if northbound:
             sources.append("stock_hsgt_fund_flow_summary_em")
             trade_date = northbound.trade_date
@@ -289,6 +371,7 @@ def fetch_capital_flow_snapshot(
         overall_direction=overall_dir,
         overall_label=overall_label,
         northbound=northbound,
+        southbound=southbound,
         top_inflows=top_inflows,
         top_outflows=top_outflows,
         theme_relevant=theme_relevant,

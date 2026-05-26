@@ -10,7 +10,7 @@ from typing import Any
 import akshare as ak
 import pandas as pd
 
-from src.collectors.capital_flow import CapitalFlowSnapshot
+from src.collectors.capital_flow import NORTHBOUND_DISCLOSURE_NOTE, NORTHBOUND_HIST_END, CapitalFlowSnapshot
 from src.config_loader import ROOT
 
 FLOW_DIR = ROOT / "data" / "capital_flow"
@@ -155,8 +155,11 @@ def build_flow_trends(
         "snapshot_days": len(daily_series),
         "daily_series": daily_series,
         "northbound_series": northbound_hist,
-        "northbound_sum_5d_yi": nb_sum_5d,
-        "northbound_sum_10d_yi": nb_sum_10d,
+        "northbound_disclosed": bool(northbound_hist),
+        "northbound_hist_end": NORTHBOUND_HIST_END,
+        "northbound_note": NORTHBOUND_DISCLOSURE_NOTE if not northbound_hist else "",
+        "northbound_sum_5d_yi": nb_sum_5d if northbound_hist else None,
+        "northbound_sum_10d_yi": nb_sum_10d if northbound_hist else None,
         "direction_avg_5d": round(sum(recent_5) / len(recent_5), 2) if recent_5 else 0,
         "direction_avg_10d": round(sum(recent_10) / len(recent_10), 2) if recent_10 else 0,
         "hot_sectors": hot_sector_list,

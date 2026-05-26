@@ -85,24 +85,49 @@ function renderFlow(data) {
   }
 
   const nb = flow.northbound;
+  const sb = flow.southbound;
+  const nbChip = nb
+    ? nb.disclosed === false
+      ? {
+          label: `北向净买额（${nb.trade_date}）`,
+          value: "已暂停披露",
+          sub: "2024-08 起交易所不再公布日度净买额",
+          cls: "",
+        }
+      : {
+          label: `北向资金（${nb.trade_date}）`,
+          value: `${nb.total_net_yi >= 0 ? "+" : ""}${Number(nb.total_net_yi).toFixed(2)} 亿`,
+          sub: `沪 ${nb.sh_net_yi >= 0 ? "+" : ""}${Number(nb.sh_net_yi).toFixed(2)} · 深 ${nb.sz_net_yi >= 0 ? "+" : ""}${Number(nb.sz_net_yi).toFixed(2)}`,
+          cls: nb.total_net_yi >= 0 ? "rise" : nb.total_net_yi < 0 ? "fall" : "",
+        }
+    : null;
+  const sbChip =
+    sb && sb.total_net_yi != null
+      ? {
+          label: `南向资金（${sb.trade_date}）`,
+          value: `${sb.total_net_yi >= 0 ? "+" : ""}${Number(sb.total_net_yi).toFixed(2)} 亿`,
+          sub: `港股通沪 ${sb.sh_net_yi >= 0 ? "+" : ""}${Number(sb.sh_net_yi || 0).toFixed(2)} · 深 ${sb.sz_net_yi >= 0 ? "+" : ""}${Number(sb.sz_net_yi || 0).toFixed(2)}`,
+          cls: sb.total_net_yi >= 0 ? "rise" : sb.total_net_yi < 0 ? "fall" : "",
+        }
+      : null;
+
   const chips = [
     {
       label: "主力方向",
       value: flow.overall_label || flowDirLabel(flow.overall_direction),
       cls: flow.overall_direction === "inflow" ? "rise" : flow.overall_direction === "outflow" ? "fall" : "",
     },
-    nb
-      ? {
-          label: `北向资金（${nb.trade_date}）`,
-          value: `${nb.total_net_yi >= 0 ? "+" : ""}${nb.total_net_yi.toFixed(2)} 亿`,
-          sub: `沪 ${nb.sh_net_yi >= 0 ? "+" : ""}${nb.sh_net_yi.toFixed(2)} · 深 ${nb.sz_net_yi >= 0 ? "+" : ""}${nb.sz_net_yi.toFixed(2)}`,
-          cls: nb.total_net_yi >= 0 ? "rise" : nb.total_net_yi < 0 ? "fall" : "",
-        }
-      : null,
+    nbChip,
+    sbChip,
     { label: "数据日期", value: flow.trade_date || "—" },
   ].filter(Boolean);
 
-  summaryEl.innerHTML = chips
+  let noteHtml = "";
+  if (nb?.note) {
+    noteHtml = `<p class="hint">${escapeHtml(nb.note)}</p>`;
+  }
+
+  summaryEl.innerHTML = `${noteHtml}${chips
     .map(
       (c) => `<div class="flow-chip">
       <span class="muted">${c.label}</span>
@@ -110,7 +135,7 @@ function renderFlow(data) {
       ${c.sub ? `<small class="${c.cls || ""}">${escapeHtml(c.sub)}</small>` : ""}
     </div>`
     )
-    .join("");
+    .join("")}`;
 
   if (flow.theme_relevant?.length) {
     const rows = flow.theme_relevant
@@ -312,13 +337,27 @@ function renderFlowHistory(data) {
     return;
   }
 
+  const nbDisclosed = trends.northbound_disclosed !== false && (trends.northbound_series || []).length > 0;
   const chips = [
     { label: "快照天数", value: `${trends.snapshot_days || 0} 天` },
-    { label: "北向近5日", value: `${trends.northbound_sum_5d_yi >= 0 ? "+" : ""}${(trends.northbound_sum_5d_yi || 0).toFixed(2)} 亿`, cls: pctClass(trends.northbound_sum_5d_yi) },
-    { label: "北向近10日", value: `${trends.northbound_sum_10d_yi >= 0 ? "+" : ""}${(trends.northbound_sum_10d_yi || 0).toFixed(2)} 亿`, cls: pctClass(trends.northbound_sum_10d_yi) },
+    nbDisclosed
+      ? {
+          label: "北向近5日",
+          value: `${trends.northbound_sum_5d_yi >= 0 ? "+" : ""}${(trends.northbound_sum_5d_yi || 0).toFixed(2)} 亿`,
+          cls: pctClass(trends.northbound_sum_5d_yi),
+        }
+      : { label: "北向近5日", value: "已暂停披露", cls: "" },
+    nbDisclosed
+      ? {
+          label: "北向近10日",
+          value: `${trends.northbound_sum_10d_yi >= 0 ? "+" : ""}${(trends.northbound_sum_10d_yi || 0).toFixed(2)} 亿`,
+          cls: pctClass(trends.northbound_sum_10d_yi),
+        }
+      : { label: "北向近10日", value: "—", cls: "" },
     { label: "主力方向5日均", value: `${(trends.direction_avg_5d || 0) >= 0 ? "+" : ""}${(trends.direction_avg_5d || 0).toFixed(2)}` },
   ];
-  summaryEl.innerHTML = chips
+  const note = trends.northbound_note || (trends.northbound_hist_end ? `官方日度北向净买额止于 ${trends.northbound_hist_end}` : "");
+  summaryEl.innerHTML = `${note ? `<p class="hint">${escapeHtml(note)}</p>` : ""}${chips
     .map(
       (c) => `<div class="flow-chip"><span class="muted">${c.label}</span><b class="${c.cls || ""}">${escapeHtml(c.value)}</b></div>`
     )
@@ -329,6 +368,18 @@ function renderFlowHistory(data) {
 
   const nb = trends.northbound_series || [];
   const daily = trends.daily_series || [];
+  const histSeries = nb.length
+    ? [
+        {
+          name: "北向净买额（历史）",
+          type: "bar",
+          data: nb.map((p) => [p.date, p.net_yi]),
+          itemStyle: {
+            color: (p) => (p.value[1] >= 0 ? "#ff4d4f" : "#52c41a"),
+          },
+        },
+      ]
+    : [];
 
   chartFlowHist.setOption({
     backgroundColor: "transparent",
@@ -339,20 +390,13 @@ function renderFlowHistory(data) {
     xAxis: { type: "time", axisLine: { lineStyle: { color: "#2a3544" } } },
     yAxis: {
       type: "value",
-      name: "亿元",
+      name: nb.length ? "亿元" : "方向",
       splitLine: { lineStyle: { color: "#2a3544" } },
     },
     series: [
+      ...histSeries,
       {
-        name: "北向净买额",
-        type: "bar",
-        data: nb.map((p) => [p.date, p.net_yi]),
-        itemStyle: {
-          color: (p) => (p.value[1] >= 0 ? "#ff4d4f" : "#52c41a"),
-        },
-      },
-      {
-        name: "本地主力方向",
+        name: "A股主力方向（行业/概念）",
         type: "line",
         yAxisIndex: 0,
         smooth: true,
