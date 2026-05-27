@@ -115,21 +115,22 @@ def evaluate_rules(
                 )
             )
 
-    # 短期赎回预警（持有不足 7 天）
+    # 短期赎回预警（持有不足 7 天）— 按首次建仓日，加仓不重置
     for pos in positions_cfg:
-        days = _days_since(pos.get("last_buy_date", ""))
+        buy_date = pos.get("first_buy_date") or pos.get("last_buy_date", "")
+        days = _days_since(buy_date)
         if days is not None and days < 7:
             signals.append(
                 RuleSignal(
                     rule_id="REDEMPTION_FEE_7D",
                     severity="warning",
                     fund_code=pos["fund_code"],
-                    message=f"{pos.get('fund_name', pos['fund_code'])} 持有仅 {days} 天，赎回可能收取惩罚性费用",
+                    message=f"{pos.get('fund_name', pos['fund_code'])} 距首次买入仅 {days} 天，赎回可能收取惩罚性费用",
                     suggested_action="hold",
                 )
             )
 
-    # 换基冷却（仅提示，不自动 switch）
+    # 换基冷却 — 按最近一次买入日
     for pos in positions_cfg:
         days = _days_since(pos.get("last_buy_date", ""))
         if days is not None and days < min_switch_days:

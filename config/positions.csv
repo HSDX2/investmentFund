@@ -1,3 +1,2 @@
-fund_code,fund_name,shares,cost_per_share,last_buy_date,channel
-012734,	易方达中证人工智能主,313.77,2.2797,2026-05-27,支付宝
-,,,,,
+fund_code,fund_name,shares,cost_per_share,first_buy_date,last_buy_date,channel
+012734,易方达中证人工智能主,313.77,2.0539,2026-05-06,2026-05-27,支付宝
