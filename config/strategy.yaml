@@ -88,6 +88,18 @@ market_flow:
 market_outlook:
   enabled: true                 # false = 不调用 LLM 方向分析（仍展示原始资金流）
 
+# --- 趋势观察（基金级「大涨小回/大跌小弹」，注入 AI 与日报，不自动下单）---
+trend_observation:
+  enabled: true
+  lookback_days: 90             # 回看净值天数
+  big_move_pct: 12              # 阶段涨跌幅超过此值（%）视为「大涨/大跌」
+  small_correction_pct: 6         # 自高点回落/自低点反弹小于此值（%）视为「小回/小弹」
+  prefer_hold_on_uptrend: true    # AI：上升趋势未破时倾向 hold，不因单日下跌建议换基
+  avoid_chase_on_downtrend: true  # AI：下降趋势未转强时不建议追涨/换入同主题
+  philosophy: |
+    场外基金版趋势心法（仅供 AI 参考）：阶段大涨后若仅为小幅回调，上升未破，以持有为主；
+    阶段大跌后若仅为小幅反弹，下降未转强，不宜急于追。知行合一，涨不喜跌不悲，配合止损线。
+
 # --- 推荐看板（基金/板块龙头 + 结构化推荐理由 + 资金流历史）---
 recommendation_board:
   enabled: true

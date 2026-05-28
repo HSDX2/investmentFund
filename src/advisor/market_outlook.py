@@ -108,9 +108,12 @@ def _fallback_outlook(
         )
         if cf.northbound:
             nb = cf.northbound
-            parts.append(
-                f"北向合计 {nb.total_net_yi:+.2f} 亿元（沪 {nb.sh_net_yi:+.2f} / 深 {nb.sz_net_yi:+.2f}）。"
-            )
+            if nb.disclosed and nb.total_net_yi is not None:
+                parts.append(
+                    f"北向合计 {nb.total_net_yi:+.2f} 亿元（沪 {nb.sh_net_yi:+.2f} / 深 {nb.sz_net_yi:+.2f}）。"
+                )
+            else:
+                parts.append("北向日度净买额目前已暂停披露。")
     else:
         parts.append("今日未能获取完整资金流数据。")
 

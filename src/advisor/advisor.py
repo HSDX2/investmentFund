@@ -13,6 +13,7 @@ from src.advisor.llm_client import chat_json, is_llm_configured
 from src.advisor.news_summarizer import build_news_digest
 from src.advisor.validator import validate_advice
 from src.analytics.portfolio import PortfolioSummary, WatchlistItem
+from src.analytics.trend_observation import build_trend_observation
 from src.config_loader import ROOT
 from src.risk.rules import RuleSignal, enforce_critical_rules, evaluate_rules
 
@@ -29,6 +30,7 @@ class AdviceResult:
     rule_signals: list[RuleSignal] = field(default_factory=list)
     news_digest: list[dict[str, Any]] = field(default_factory=list)
     news_error: str | None = None
+    trend_observation: dict[str, Any] | None = None
     skipped: bool = False
     skip_reason: str | None = None
     model: str | None = None
@@ -42,6 +44,7 @@ class AdviceResult:
             "rule_signals": [s.to_dict() for s in self.rule_signals],
             "news_digest": self.news_digest,
             "news_error": self.news_error,
+            "trend_observation": self.trend_observation,
             "skipped": self.skipped,
             "skip_reason": self.skip_reason,
             "model": self.model,
@@ -90,6 +93,7 @@ def generate_advice(
         fund_universe,
         use_llm=use_llm,
     )
+    trend_observation = build_trend_observation(strategy, portfolio, positions_cfg)
 
     if not use_llm or not is_llm_configured():
         reason = (
@@ -102,6 +106,7 @@ def generate_advice(
             rule_signals=rule_signals,
             news_digest=news_digest,
             news_error=news_error,
+            trend_observation=trend_observation,
             skipped=True,
             skip_reason=reason,
         )
@@ -116,6 +121,7 @@ def generate_advice(
         fund_universe,
         positions_cfg,
         news_digest=news_digest,
+        trend_observation=trend_observation,
     )
     system = _load_system_prompt()
     user = (
@@ -142,6 +148,7 @@ def generate_advice(
         rule_signals=rule_signals,
         news_digest=news_digest,
         news_error=news_error,
+        trend_observation=trend_observation,
         skipped=False,
         model=model,
     )

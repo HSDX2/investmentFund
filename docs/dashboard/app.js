@@ -519,6 +519,51 @@ function renderRules(data) {
     .join("");
 }
 
+function renderTrend(data) {
+  const el = document.getElementById("trendBlock");
+  const trend = data.advice?.trend_observation;
+  if (!trend?.holdings?.length) {
+    el.innerHTML = '<p class="empty">暂无趋势数据（需净值历史缓存）</p>';
+    return;
+  }
+  const rows = trend.holdings
+    .map((h) => {
+      const cls =
+        h.trend === "uptrend_intact"
+          ? "rise"
+          : h.trend === "downtrend_intact"
+            ? "fall"
+            : "";
+      return `<tr>
+        <td>${escapeHtml(h.name || h.code)}</td>
+        <td class="${pctClass(h.period_return_pct)}">${fmtPct(h.period_return_pct)}</td>
+        <td class="${pctClass(h.drawdown_from_peak_pct)}">${fmtPct(h.drawdown_from_peak_pct)}</td>
+        <td class="${pctClass(h.bounce_from_trough_pct)}">${fmtPct(h.bounce_from_trough_pct)}</td>
+        <td class="${cls}">${escapeHtml(h.trend_label || h.trend || "—")}</td>
+        <td>${escapeHtml(h.hint || "")}</td>
+      </tr>`;
+    })
+    .join("");
+  const bench = trend.benchmark;
+  const benchHtml =
+    bench && bench.trend !== "insufficient_data"
+      ? `<p class="muted"><b>基准 ${escapeHtml(bench.name || "")}</b>：${escapeHtml(bench.trend_label || "")} — ${escapeHtml(bench.hint || "")}</p>`
+      : "";
+  el.innerHTML = `
+    <p class="muted">${escapeHtml(trend.philosophy || "")}</p>
+    <div class="table-wrap">
+      <table class="trend-table">
+        <thead>
+          <tr>
+            <th>基金</th><th>阶段涨跌</th><th>自高点回落</th><th>自低点反弹</th><th>趋势</th><th>提示</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    ${benchHtml}`;
+}
+
 function renderAi(data) {
   const el = document.getElementById("aiBlock");
   const a = data.advice;
@@ -688,6 +733,7 @@ function renderAll(data) {
   renderOutlook(data);
   renderPositions(data);
   renderRules(data);
+  renderTrend(data);
   renderAi(data);
   renderNews(data);
   renderBatch(data);

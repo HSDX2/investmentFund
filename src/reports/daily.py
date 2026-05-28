@@ -74,6 +74,43 @@ def _render_news_section(advice: AdviceResult | None) -> list[str]:
     return lines
 
 
+def _render_trend_section(advice: AdviceResult | None) -> list[str]:
+    trend = advice.trend_observation if advice else None
+    if not trend or not trend.get("holdings"):
+        return []
+    lines = [
+        "",
+        "## 趋势观察",
+        "",
+        f"> {trend.get('philosophy', '').strip() or '阶段涨跌 + 回撤/反弹，仅供参考，不自动下单。'}",
+        "",
+        f"回看 **{trend.get('lookback_days', 90)}** 日；大涨/大跌阈值 **{trend.get('big_move_pct', 12)}%**，小回/小弹阈值 **{trend.get('small_correction_pct', 6)}%**。",
+        "",
+        "| 基金 | 阶段涨跌 | 自高点回落 | 自低点反弹 | 趋势 | 提示 |",
+        "|------|----------|------------|------------|------|------|",
+    ]
+    for h in trend["holdings"]:
+        lines.append(
+            f"| {h.get('name', h.get('code', '—'))} | "
+            f"{_fmt_pct(h.get('period_return_pct'))} | "
+            f"{_fmt_pct(h.get('drawdown_from_peak_pct'))} | "
+            f"{_fmt_pct(h.get('bounce_from_trough_pct'))} | "
+            f"{h.get('trend_label', h.get('trend', '—'))} | {h.get('hint', '—')} |"
+        )
+    bench = trend.get("benchmark")
+    if bench and bench.get("trend") != "insufficient_data":
+        lines.extend(
+            [
+                "",
+                f"**基准 {bench.get('name', '')}**：{bench.get('trend_label', '')} — {bench.get('hint', '')}",
+                "",
+            ]
+        )
+    else:
+        lines.append("")
+    return lines
+
+
 def _render_ai_section(advice: AdviceResult | None) -> list[str]:
     if not advice:
         return []
@@ -197,6 +234,7 @@ def render_daily_report(
         )
 
     lines.extend(_render_rule_signals(advice))
+    lines.extend(_render_trend_section(advice))
     lines.extend(_render_news_section(advice))
     lines.extend(_render_ai_section(advice))
 

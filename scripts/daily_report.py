@@ -139,11 +139,12 @@ def main() -> int:
             else:
                 save_flow_snapshot(capital_flow)
                 nb = capital_flow.northbound
-                nb_txt = (
-                    f"北向 {nb.total_net_yi:+.2f} 亿"
-                    if nb
-                    else "北向 —"
-                )
+                if nb and nb.disclosed and nb.total_net_yi is not None:
+                    nb_txt = f"北向 {nb.total_net_yi:+.2f} 亿"
+                elif nb and not nb.disclosed:
+                    nb_txt = "北向 已暂停披露"
+                else:
+                    nb_txt = "北向 —"
                 print(
                     f"  主力方向：{capital_flow.overall_label} · {nb_txt} · "
                     f"来源 {capital_flow.data_source or '—'}"
